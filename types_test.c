@@ -14,19 +14,41 @@ int main() {
   // Please test this class for me and report any bugs you discover. Any advice is welcome.
   /////////////////////////////
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   IntPairList *ipl = new_IntPairList();
   // Please test this class for me and report any bugs you discover. Any advice is welcome.
+  // tested: wytsai
+  for (int i = 0; i < 10; i++) IntPairList_push(ipl, make_IntPair(i, i + 1));
+  IntPairNode *ptr = ipl->head;
+  while (ptr != NULL) {
+    printf("(%d, %d)\n", ptr->data.first, ptr->data.second);
+    ptr = ptr->next;
+  }
+  IntPairList_clear(ipl);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   IntTripleStack *its = new_IntTripleStack();
   // Please test this class for me and report any bugs you discover. Any advice is welcome.
+  // tested: wytsai
+  for (int i = 0; i < 10; i++) IntTripleStack_push(its, make_IntTriple(i, i + 1, i + 2));
+  // while (its->top != NULL) {
+  //   printf("(%d, %d, %d)\n", its->top->data.first, its->top->data.second, its->top->data.third);
+  //   IntTripleStack_pop(its);
+  // }
+  IntTripleStack_clear(its);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   Map *mp = new_Map();
-  for (int i = 0; i < win_row; i++) {
-    for (int j = 0; j < win_col; j++) {
+  for (unsigned i = 0; i < win_row; i++) {
+    for (unsigned j = 0; j < win_col; j++) {
       printf("%c ", mp->data[i][j]);
     }
     printf("\n");
   }
   Map_clear(mp);
-  free(ipl);
-  free(its);
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }

@@ -51,6 +51,16 @@ void IntPairList_push(IntPairList *l, IntPair p) {
   *(l->rear) = (IntPairNode){p, NULL}, l->size++;
 }
 
+void IntPairList_clear(IntPairList *l) {
+  IntPairNode *ptr = l->head, *tmp;
+  while (ptr != NULL) {
+    tmp = ptr;
+    ptr = ptr->next;
+    free(tmp);
+  }
+  free(l);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -86,8 +96,7 @@ IntTriple IntTripleStack_top(IntTripleStack *s) { return s->size > 0 ? s->top->d
 void IntTripleStack_push(IntTripleStack *s, IntTriple t) {
   IntTripleNode *tmp = malloc(sizeof(IntTripleNode));
   *tmp = (IntTripleNode){t, s->top};
-  s->top = tmp;
-  s->size++;
+  s->top = tmp, s->size++;
 }
 
 void IntTripleStack_pop(IntTripleStack *s) {
@@ -96,6 +105,16 @@ void IntTripleStack_pop(IntTripleStack *s) {
   s->top = s->top->next;
   free(tmp);
   s->size--;
+}
+
+void IntTripleStack_clear(IntTripleStack *s) {
+  IntTripleNode *ptr = s->top, *tmp;
+  while (ptr != NULL) {
+    tmp = ptr;
+    ptr = ptr->next;
+    free(tmp);
+  }
+  free(s);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,13 +129,13 @@ typedef struct {
 Map *new_Map() {
   Map *m = malloc(sizeof(Map));
   char **tmp = malloc(win_row * sizeof(char *));
-  for (int i = 0; i < win_row; i++) tmp[i] = memset(malloc((win_col + 1) * sizeof(char)), '@', win_col);
+  for (unsigned i = 0; i < win_row; i++) tmp[i] = memset(malloc((win_col + 1) * sizeof(char)), '@', win_col);
   *m = (Map){tmp, new_IntPairList(), 0};
   return m;
 }
 
 void Map_clear(Map *m) {
-  for (int i = 0; i < win_row; i++) free(m->data[i]);
+  for (unsigned i = 0; i < win_row; i++) free(m->data[i]);
   free(m->data);
   IntPairNode *ptr = m->walked_path->head, *tmp;
   while (ptr != NULL) {
