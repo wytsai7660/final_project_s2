@@ -102,15 +102,29 @@ void IntTripleStack_pop(IntTripleStack *s) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  char *data;  // @: wall, ' ': path
+  char **data;  // @: wall, ' ': path
   IntPairList *walked_path;
   unsigned walked;
 } Map;
 
 Map *new_Map() {
   Map *m = malloc(sizeof(Map));
-  *m = (Map){malloc(win_row * win_col * sizeof(char)), new_IntPairList()};
+  char **tmp = malloc(win_row * sizeof(char *));
+  for (int i = 0; i < win_row; i++) tmp[i] = memset(malloc((win_col + 1) * sizeof(char)), '@', win_col);
+  *m = (Map){tmp, new_IntPairList(), 0};
   return m;
+}
+
+void Map_clear(Map *m) {
+  for (int i = 0; i < win_row; i++) free(m->data[i]);
+  free(m->data);
+  IntPairNode *ptr = m->walked_path->head, *tmp;
+  while (ptr != NULL) {
+    tmp = ptr, ptr = ptr->next;
+    free(tmp);
+  }
+  free(m->walked_path);
+  free(m);
 }
 
 #endif
