@@ -17,8 +17,8 @@
 
 #define msg_sleep 1 * 1000 * 1000  // 1sec
 
-int my_rand(int l, int r) {  // get a random number between [l,r] 
-  return rand() % (r - l + 1) + l;
+int rand_between(int min, int max) {  // get a random number between [min, max] 
+  return rand() % (max - min + 1) + min;
 }
 
 int max(int a, int b) { return a > b ? a : b; }

@@ -1,4 +1,4 @@
-#include "types.h"
+#include "../types.h"
 
 int main() {
   win_row = 10, win_col = 20;
