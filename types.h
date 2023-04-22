@@ -122,22 +122,28 @@ void IntTripleStack_clear(IntTripleStack *s) {
 
 typedef struct {
   char **data;  // @: wall, ' ': path
-  IntPairList *walked_path;
-  unsigned walked;
+  IntPairList *path, *walked_path;
+  unsigned row, col, walked;
 } Map;
 
-Map *new_Map() {
+Map *new_Map(unsigned r, unsigned c) {
   Map *m = malloc(sizeof(Map));
-  char **tmp = malloc(win_row * sizeof(char *));
-  for (unsigned i = 0; i < win_row; i++) tmp[i] = memset(malloc((win_col + 1) * sizeof(char)), '@', win_col);
-  *m = (Map){tmp, new_IntPairList(), 0};
+  char **tmp = malloc(r * sizeof(char *));
+  for (unsigned i = 0; i < r; i++) tmp[i] = memset(malloc((c + 1) * sizeof(char)), '@', c);
+  *m = (Map){tmp, new_IntPairList(), new_IntPairList(), r, c, 0};
   return m;
 }
 
 void Map_clear(Map *m) {
-  for (unsigned i = 0; i < win_row; i++) free(m->data[i]);
+  for (unsigned i = 0; i < m->row; i++) free(m->data[i]);
   free(m->data);
-  IntPairNode *ptr = m->walked_path->head, *tmp;
+  IntPairNode *ptr = m->path->head, *tmp;
+  while (ptr != NULL) {
+    tmp = ptr, ptr = ptr->next;
+    free(tmp);
+  }
+  free(m->path);
+  ptr = m->walked_path->head;
   while (ptr != NULL) {
     tmp = ptr, ptr = ptr->next;
     free(tmp);

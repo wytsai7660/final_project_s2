@@ -1,7 +1,6 @@
 #include "../types.h"
 
 int main() {
-  win_row = 10, win_col = 20;
   FloatPair fp = make_FloatPair(0.5f, 0.1f);
   IntPair ip = make_IntPair(24, 25);
   IntTriple it = make_IntTriple(99, 88, 77);
@@ -41,9 +40,9 @@ int main() {
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Map *mp = new_Map();
-  for (unsigned i = 0; i < win_row; i++) {
-    for (unsigned j = 0; j < win_col; j++) {
+  Map *mp = new_Map(10, 30);
+  for (unsigned i = 0; i < mp->row; i++) {
+    for (unsigned j = 0; j < mp->col; j++) {
       printf("%c ", mp->data[i][j]);
     }
     printf("\n");
