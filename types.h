@@ -121,34 +121,57 @@ void IntTripleStack_clear(IntTripleStack *s) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
+  char *data;
+  unsigned front, size;
+} CharArray;
+
+CharArray *new_CharArray(unsigned n) {
+  CharArray *a = malloc(sizeof(CharArray));
+  *a = (CharArray){malloc(n * sizeof(char)), 0, 0};
+  return a;
+}
+
+void CharArray_push_back(CharArray *a, char c) { a->data[a->front + a->size++] = c; }
+
+char CharArray_pop_front(CharArray *a) { return a->data[a->front++]; }
+
+void CharArray_clear(CharArray *a) {
+  free(a->data);
+  free(a);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+typedef struct {
   char **data;  // @: wall, ' ': path
-  IntPairList *path, *walked_path;
-  unsigned row, col, walked;
+  // IntPairList *path, *walked_path;
+  unsigned row, col, path, walked;
 } Map;
 
 Map *new_Map(unsigned r, unsigned c) {
   Map *m = malloc(sizeof(Map));
   char **tmp = malloc(r * sizeof(char *));
-  for (unsigned i = 0; i < r; i++) tmp[i] = memset(malloc((c + 1) * sizeof(char)), '@', c);
-  *m = (Map){tmp, new_IntPairList(), new_IntPairList(), r, c, 0};
+  for (unsigned i = 0; i < r; i++) tmp[i] = memset(malloc(c * sizeof(char)), '@', c);
+  *m = (Map){tmp /*, new_IntPairList(), new_IntPairList()*/, r, c, (r * c - r - c - 1) / 2, 0};
   return m;
 }
 
 void Map_clear(Map *m) {
   for (unsigned i = 0; i < m->row; i++) free(m->data[i]);
   free(m->data);
-  IntPairNode *ptr = m->path->head, *tmp;
-  while (ptr != NULL) {
-    tmp = ptr, ptr = ptr->next;
-    free(tmp);
-  }
-  free(m->path);
-  ptr = m->walked_path->head;
-  while (ptr != NULL) {
-    tmp = ptr, ptr = ptr->next;
-    free(tmp);
-  }
-  free(m->walked_path);
+  // IntPairNode *ptr = m->path->head, *tmp;
+  // while (ptr != NULL) {
+  //   tmp = ptr, ptr = ptr->next;
+  //   free(tmp);
+  // }
+  // free(m->path);
+  // ptr = m->walked_path->head;
+  // while (ptr != NULL) {
+  //   tmp = ptr, ptr = ptr->next;
+  //   free(tmp);
+  // }
+  // free(m->walked_path);
   free(m);
 }
 
