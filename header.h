@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <termios.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -23,6 +21,21 @@ int rand_between(int min, int max) {  // get a random number between [min, max]Â
 
 int max(int a, int b) { return a > b ? a : b; }
 int min(int a, int b) { return a < b ? a : b; }
+
+// void swap(void* a, void* b, size_t size) {
+//   char *ptr1 = a, *ptr2 = b;
+//   while (size--) {
+//     ((*ptr1) ^= (*ptr2)), ((*ptr2) ^= (*ptr1)), ((*ptr1) ^= (*ptr2));
+//     ptr1++, ptr2++;
+//   }
+// }
+
+// tmp
+void swap(char* a, char* b, size_t size) {
+  char tmp = *a;
+  *a = *b;
+  *b = tmp;
+}
 
 //     w         1            (0,-1)
 //  a     d   2     0   (-1,0)      (1, 0)

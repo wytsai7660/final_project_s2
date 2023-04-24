@@ -2,5 +2,15 @@
 !/**/
 !*.**
 .o
+*.in
 *.out
 *.exe
+z-*
+.vscode
+tmp*
+
+
+
+
+// tmp
+3d_*

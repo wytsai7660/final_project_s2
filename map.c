@@ -5,8 +5,10 @@
 
 CharArray *events_shuffle(unsigned size) {
   CharArray *events = new_CharArray(size - 1);
+  CharArray_push_back(events, 'B');
   for (unsigned i = 0; i < sizeof(events_ratio) / sizeof(float); i++)
-    for (int j = 0; j < round(events_ratio[i] * (float)size) - (i == 9); j++) CharArray_push_back(events, (char)('0' + i));
+    for (int j = 0; j < round(events_ratio[i] * (float)size) - (i == 9 ? 2 : 0); j++) CharArray_push_back(events, (char)('0' + i));
+  for (unsigned i = 0; i < events->size; i++) swap(events->data + i, events->data + rand_between((int)i, (int)events->size - 1), sizeof(char));
   return events;
 }
 
@@ -17,7 +19,7 @@ void gen_maze(Map *map) {  // generate the maze
   IntTriple pos = make_IntTriple(rand_between(0, (int)map->col - 2) | 1, rand_between(0, (int)map->row - 2) | 1, rand_between(0, 3));  // gen_center (x, y, from_dir)
   IntTripleStack *pos_st = new_IntTripleStack();                                                                                       // from_dir is saved as well
   IntTripleStack_push(pos_st, pos);
-  map->data[pos.second][pos.first] = 'M';  // not sure whether it is necessary
+  map->data[pos.second][pos.first] = 'P';
 
   int dir;
   bool grow;
