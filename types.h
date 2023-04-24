@@ -194,7 +194,9 @@ void Map_clear(Map *m) {
 typedef struct {
   unsigned life, hp;
   float atk, def, crit;
-  IntPairList backpack;
+  FloatPair pos;
+  int direction;
+  int backpack[20];
 } PlayerData;
 
 PlayerData *init_player(){
@@ -204,12 +206,13 @@ PlayerData *init_player(){
   p->atk = rand_between(1, 30);
   p->def = rand_between(1, 30);
   p->crit = rand_between(1, 30)/100.0;
-  p->backpack = new_IntPairList();
+  // TODO: init player position
+  // p->pos = make_FloatPair(0, 0);
+  // p->direction = 0;
   return p;
 }
 
 void player_clear(PlayerData *p){
-  IntPairList_clear(p->backpack);
   free(p);
 }
 
