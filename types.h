@@ -193,9 +193,8 @@ void Map_clear(Map *m) {
 
 typedef struct {
   unsigned life, hp;
-  int atk, def, crit;
+  int atk, def, crit, dir;
   FloatPair pos;
-  int dir;
   int backpack[10]; // 10 types of item
 } PlayerData;
 
