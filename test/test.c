@@ -7,20 +7,7 @@ int conv_move(char c) {  // convert movements (w, a, s, d) to direction numbers
 }
 
 int main() {
-  //   printf("%d %d %d %d\n", conv_move('W'), conv_move('A'), conv_move('S'), conv_move('D'));
-
-  //   int dir;
-  //   IntTriple pos = make_IntTriple(1, 1, dir = rand_between(0, 3));  // center (x, y, from_dir)
-  //   printf("%d\n", dir);
-  //   printf("%d %d %d\n", pos.first, pos.second, pos.third);
-  //   for (int i = 0; i < 4; i++) {
-  //     printf("from: %d\n", i);
-  //     for (int j = 0; j < 3; j++) printf("%d ", (i + 3 + j) % 4);
-  //     printf("\n");
-  //   }
-  //   for (int i = 0; i < 10; i++) printf("%g ", events_ratio[i]);
-  char a = 'A', b = 'B';
-  char *ptr1 = &a, *ptr2 = &b;
-  swap(ptr1, ptr2, sizeof(char));
-  printf("%c %c\n", a, b);
+  char a = '6', b = '6', c = '6', d = '6';
+  swap(&a, &b, 1);
+  swap(&c, &d, 1);
 }

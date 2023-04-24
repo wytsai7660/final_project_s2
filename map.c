@@ -6,8 +6,9 @@
 CharArray *events_shuffle(unsigned size) {
   CharArray *events = new_CharArray(size - 1);
   CharArray_push_back(events, 'B');
-  for (unsigned i = 0; i < sizeof(events_ratio) / sizeof(float); i++)
-    for (int j = 0; j < round(events_ratio[i] * (float)size) - (i == 9 ? 2 : 0); j++) CharArray_push_back(events, (char)('0' + i));
+  for (unsigned i = 0; i < 9; i++)
+    for (int j = 0; j < round(events_ratio[i] * (float)size); j++) CharArray_push_back(events, (char)('0' + i));
+  while (events->size < size - 1) CharArray_push_back(events, '9');
   for (unsigned i = 0; i < events->size; i++) swap(events->data + i, events->data + rand_between((int)i, (int)events->size - 1), sizeof(char));
   return events;
 }

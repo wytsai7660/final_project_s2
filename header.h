@@ -22,19 +22,14 @@ int rand_between(int min, int max) {  // get a random number between [min, max]Â
 int max(int a, int b) { return a > b ? a : b; }
 int min(int a, int b) { return a < b ? a : b; }
 
-// void swap(void* a, void* b, size_t size) {
-//   char *ptr1 = a, *ptr2 = b;
-//   while (size--) {
-//     ((*ptr1) ^= (*ptr2)), ((*ptr2) ^= (*ptr1)), ((*ptr1) ^= (*ptr2));
-//     ptr1++, ptr2++;
-//   }
-// }
-
-// tmp
-void swap(char* a, char* b, size_t size) {
-  char tmp = *a;
-  *a = *b;
-  *b = tmp;
+// a swap function that can swap almost anything (in a beautiful way)
+void swap(void* a, void* b, size_t size) {
+  if (a == b) return;
+  char *ptr1 = a, *ptr2 = b;
+  while (size--) {
+    (*ptr1) ^= *ptr2, (*ptr2) ^= *ptr1, (*ptr1) ^= *ptr2;
+    ptr1++, ptr2++;
+  }
 }
 
 //     w         1            (0,-1)
