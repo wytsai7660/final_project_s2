@@ -160,6 +160,7 @@ typedef struct {
   // 7  watchtower
   // 8  gain item
   // 9  -
+  // P  player
 
   // IntPairList *path, *walked_path;
   unsigned row, col, path, walked;
@@ -195,12 +196,13 @@ typedef struct {
   unsigned life, hp;
   int atk, def, crit, dir;
   FloatPair pos;
-  int backpack[10]; // 10 types of item
+  int backpack[10];  // 10 types of item
 } PlayerData;
 
-PlayerData *new_PlayerData(){
+PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
   // TODO: decide the number
+  // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   p->life = 5;
   p->hp = 5;
   p->atk = 10;
@@ -212,8 +214,6 @@ PlayerData *new_PlayerData(){
   return p;
 }
 
-void PlayerData_clear(PlayerData *p){
-  free(p);
-}
+void PlayerData_clear(PlayerData *p) { free(p); }
 
 #endif
