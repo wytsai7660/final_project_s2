@@ -162,7 +162,6 @@ typedef struct {
   // 9  -
   // P  player
 
-  // IntPairList *path, *walked_path;
   unsigned row, col, path, walked;
 } Map;
 
@@ -170,25 +169,13 @@ Map *new_Map(unsigned r, unsigned c) {
   Map *m = malloc(sizeof(Map));
   char **tmp = malloc(r * sizeof(char *));
   for (unsigned i = 0; i < r; i++) tmp[i] = memset(malloc(c * sizeof(char)), '@', c);
-  *m = (Map){tmp /*, new_IntPairList(), new_IntPairList()*/, r, c, (r * c - r - c - 1) / 2, 0};
+  *m = (Map){tmp, r, c, (r * c - r - c - 1) / 2, 0};
   return m;
 }
 
 void Map_clear(Map *m) {
   for (unsigned i = 0; i < m->row; i++) free(m->data[i]);
   free(m->data);
-  // IntPairNode *ptr = m->path->head, *tmp;
-  // while (ptr != NULL) {
-  //   tmp = ptr, ptr = ptr->next;
-  //   free(tmp);
-  // }
-  // free(m->path);
-  // ptr = m->walked_path->head;
-  // while (ptr != NULL) {
-  //   tmp = ptr, ptr = ptr->next;
-  //   free(tmp);
-  // }
-  // free(m->walked_path);
   free(m);
 }
 
