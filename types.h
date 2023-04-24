@@ -175,4 +175,26 @@ void Map_clear(Map *m) {
   free(m);
 }
 
+typedef struct {
+  unsigned life, hp;
+  float atk, def, crit;
+  IntPairList backpack;
+} PlayerData;
+
+PlayerData *init_player(){
+  PlayerData *p = malloc(sizeof(PlayerData));
+  p->life = 5;
+  p->hp = 5;
+  p->atk = rand_between(1, 30);
+  p->def = rand_between(1, 30);
+  p->crit = rand_between(1, 30)/100.0;
+  p->backpack = new_IntPairList();
+  return p;
+}
+
+void player_clear(PlayerData *p){
+  IntPairList_clear(p->backpack);
+  free(p);
+}
+
 #endif
