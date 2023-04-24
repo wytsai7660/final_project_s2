@@ -196,7 +196,7 @@ typedef struct {
   float atk, def, crit;
   FloatPair pos;
   int direction;
-  int backpack[20];
+  int backpack[10];
 } PlayerData;
 
 PlayerData *init_player(){
