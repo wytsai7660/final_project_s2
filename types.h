@@ -133,7 +133,10 @@ CharArray *new_CharArray(unsigned n) {
 
 void CharArray_push_back(CharArray *a, char c) { a->data[a->front + a->size++] = c; }
 
-char CharArray_pop_front(CharArray *a) { return a->data[a->front++]; }
+char CharArray_pop_front(CharArray *a) {
+  a->size--;
+  return a->data[a->front++];
+}
 
 void CharArray_clear(CharArray *a) {
   free(a->data);
@@ -144,7 +147,20 @@ void CharArray_clear(CharArray *a) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  char **data;  // @: wall, ' ': path
+  char **data;
+  // @  wall
+  //' ' path
+  // 0  +HP
+  // 1  -HP
+  // 2  +ATK
+  // 3  -ATK
+  // 4  +DEF
+  // 5  -DEF
+  // 6  enemy
+  // 7  watchtower
+  // 8  gain item
+  // 9  -
+
   // IntPairList *path, *walked_path;
   unsigned row, col, path, walked;
 } Map;
