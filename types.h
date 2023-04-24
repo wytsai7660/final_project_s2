@@ -191,4 +191,30 @@ void Map_clear(Map *m) {
   free(m);
 }
 
+typedef struct {
+  unsigned life, hp;
+  int atk, def, crit;
+  FloatPair pos;
+  int dir;
+  int backpack[10]; // 10 types of item
+} PlayerData;
+
+PlayerData *new_PlayerData(){
+  PlayerData *p = malloc(sizeof(PlayerData));
+  // TODO: decide the number
+  p->life = 5;
+  p->hp = 5;
+  p->atk = 10;
+  p->def = 10;
+  p->crit = rand_between(0, 20);
+  // TODO: init player position
+  // p->pos = make_FloatPair(0, 0);
+  // p->dir = 0;
+  return p;
+}
+
+void PlayerData_clear(PlayerData *p){
+  free(p);
+}
+
 #endif
