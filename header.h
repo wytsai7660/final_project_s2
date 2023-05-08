@@ -13,6 +13,9 @@
 #include <time.h>
 #include <unistd.h>
 
+#define M_PI 3.14159265358979323846
+#define M_PI_2 1.57079632679489661923
+
 #define msg_sleep 1 * 1000 * 1000  // 1sec
 
 int rand_between(int min, int max) {  // get a random number between [min, max] 
@@ -35,10 +38,15 @@ void swap(void* a, void* b, size_t size) {
 //     w         1            (0,-1)
 //  a     d   2     0   (-1,0)      (1, 0)
 //     s         3            (0, 1)
-int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 unsigned win_row, win_col;
 
-float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.2f, 0.05f, 0.05f, 0.4f};
+const int fov = 120;
+const float scaling_factor = 30;
+const float wall_height = 1;
+const float render_spacing = 0.001f;
+
+const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.2f, 0.05f, 0.05f, 0.4f};
 // 0  回血  7.5%
 // 1  扣血  2.5%
 // 2  加功  7.5%
