@@ -2,7 +2,6 @@
 #define HEADER_H_
 
 #include <ctype.h>
-#include <fcntl.h>
 #include <float.h>
 #include <limits.h>
 #include <math.h>
@@ -11,15 +10,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
+#ifdef __linux__
+  #include <sys/ioctl.h>
+  #include <unistd.h>
+#elif _WIN32
+  #define NOMINMAX
+  #include <windows.h>
+#endif
 
 #define M_PI 3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
 
 #define msg_sleep 1 * 1000 * 1000  // 1sec
 
-int rand_between(int min, int max) {  // get a random number between [min, max] 
-  return rand() % (max - min + 1) + min;
+int rand_between(int l, int r) {  // get a random number between [l, r] 
+  return rand() % (r - l + 1) + l;
 }
 
 int max(int a, int b) { return a > b ? a : b; }
