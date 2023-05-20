@@ -3,13 +3,13 @@
 #include "types.h"
 // #include "print.c"
 
-CharArray *events_shuffle(unsigned size) {
+CharArray *events_shuffle(int size) {
   CharArray *events = new_CharArray(size - 1);
   CharArray_push_back(events, 'B');
-  for (unsigned i = 0; i < 9; i++)
+  for (int i = 0; i < 9; i++)
     for (int j = 0; j < round(events_ratio[i] * (float)size); j++) CharArray_push_back(events, (char)('0' + i));
   while (events->size < size - 1) CharArray_push_back(events, '9');
-  for (unsigned i = 0; i < events->size; i++) swap(events->data + i, events->data + rand_between(i, events->size - 1), sizeof(char));
+  for (int i = 0; i < events->size; i++) swap(events->data + i, events->data + rand_between(i, events->size - 1), sizeof(char));
   return events;
 }
 

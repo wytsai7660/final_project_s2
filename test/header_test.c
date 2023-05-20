@@ -13,7 +13,6 @@ int main() {
     swap(&f1, &f2, sizeof(float));
   }
   printf("%d %d %c %c %g %g\n", i1, i2, c1, c2, f1, f2);
-  int i3 = 10, i4 = 20;
-  unsigned i5 = 10, i6 = 20;
+  int i3 = 10, i4 = 20, i5 = -20, i6 = -10;
   printf("%d\n%d", rand_between(i3, i4), rand_between(i5, i6));
 }

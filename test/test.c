@@ -1,4 +1,6 @@
+#include "../3d_renderer.c"
 #include "../header.h"
+#include "../map.c"
 #include "../types.h"
 
 int conv_move(char c) {  // convert movements (w, a, s, d) to direction numbers

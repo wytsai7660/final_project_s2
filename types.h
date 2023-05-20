@@ -34,7 +34,7 @@ typedef struct __INT_PAIR_NODE__ {
 /// @todo remove it and rewrite it in a better way
 typedef struct {
   IntPairNode *head, *rear;
-  unsigned size;
+  int size;
 } IntPairList;
 
 IntPairList *new_IntPairList() {
@@ -82,7 +82,7 @@ typedef struct __INT_TRIPLE_NODE__ {
 // stack<triple<int, int, int>>
 typedef struct {
   IntTripleNode *top;
-  unsigned size;
+  int size;
 } IntTripleStack;
 
 IntTripleStack *new_IntTripleStack() {
@@ -122,12 +122,13 @@ void IntTripleStack_clear(IntTripleStack *s) {
 
 typedef struct {
   char *data;
-  unsigned front, size;
+  int front, size;
 } CharArray;
 
-CharArray *new_CharArray(unsigned n) {
+CharArray *new_CharArray(int n) {
+  if (n <= 0) return NULL;
   CharArray *a = malloc(sizeof(CharArray));
-  *a = (CharArray){malloc(n * sizeof(char)), 0, 0};
+  *a = (CharArray){malloc((unsigned)n * sizeof(char)), 0, 0};
   return a;
 }
 
@@ -162,19 +163,20 @@ typedef struct {
   // 9  -
   // P  player
 
-  unsigned row, col, path, walked;
+  int row, col, path, walked;
 } Map;
 
-Map *new_Map(unsigned r, unsigned c) {
+Map *new_Map(int r, int c) {
+  if (r <= 0 || c <= 0) return NULL;
   Map *m = malloc(sizeof(Map));
-  char **tmp = malloc(r * sizeof(char *));
-  for (unsigned i = 0; i < r; i++) tmp[i] = memset(malloc(c * sizeof(char)), '@', c);
+  char **tmp = malloc((unsigned)r * sizeof(char *));
+  for (int i = 0; i < r; i++) tmp[i] = memset(malloc((unsigned)c * sizeof(char)), '@', (unsigned)c);
   *m = (Map){tmp, r, c, (r * c - r - c - 1) / 2, 0};
   return m;
 }
 
 void Map_clear(Map *m) {
-  for (unsigned i = 0; i < m->row; i++) free(m->data[i]);
+  for (int i = 0; i < m->row; i++) free(m->data[i]);
   free(m->data);
   free(m);
 }
@@ -183,7 +185,7 @@ void Map_clear(Map *m) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  unsigned life, hp;
+  int life, hp;
   int atk, def, crit, dir;
   FloatPair pos;
   int backpack[10];  // 10 types of item

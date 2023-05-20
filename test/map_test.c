@@ -5,16 +5,16 @@ int main() {
   Map *map = new_Map(17, 87);
   int arr[10] = {};
   gen_maze(map);
-  for (unsigned i = 0; i < map->row; i++) {
-    for (unsigned j = 0; j < map->col; j++) {
+  for (int i = 0; i < map->row; i++) {
+    for (int j = 0; j < map->col; j++) {
       printf("%c ", map->data[i][j]);
       if (map->data[i][j] >= '0' && map->data[i][j] <= '9') arr[map->data[i][j] - '0']++;
     }
     printf("\n");
   }
   printf("\n\n");
-  for (unsigned i = 0; i < map->row; i++) {
-    for (unsigned j = 0; j < map->col; j++) printf("%c ", map->data[i][j] == '@' ? '@' : ' ');
+  for (int i = 0; i < map->row; i++) {
+    for (int j = 0; j < map->col; j++) printf("%c ", map->data[i][j] == '@' ? '@' : ' ');
     printf("\n");
   }
   printf("%d\n", map->path);
