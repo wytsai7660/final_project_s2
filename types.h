@@ -44,10 +44,8 @@ IntPairList *new_IntPairList() {
 }
 
 void IntPairList_push(IntPairList *l, IntPair p) {
-  if (!l->size)
-    l->head = malloc(sizeof(IntPairNode)), l->rear = l->head;
-  else
-    l->rear->next = malloc(sizeof(IntPairNode)), l->rear = l->rear->next;
+  if (!l->size) l->head = malloc(sizeof(IntPairNode)), l->rear = l->head;
+  else l->rear->next = malloc(sizeof(IntPairNode)), l->rear = l->rear->next;
   *(l->rear) = (IntPairNode){p, NULL}, l->size++;
 }
 
@@ -200,7 +198,7 @@ typedef struct {
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
-  // TODO: decide the number
+  // TODO decide the number
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   p->life = 5;
   p->hp = 10;

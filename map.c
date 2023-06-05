@@ -16,7 +16,7 @@ CharArray *events_shuffle(int size) {
 void gen_maze(Map *map) {  // generate the maze
   CharArray *events = events_shuffle(map->path);
 
-  /// @todo fix initial direction wrongly decided when map size is small
+  // TODO fix initial direction wrongly decided when map size is small
   IntTriple pos = make_IntTriple(rand_between(0, map->col - 2) | 1, rand_between(0, map->row - 2) | 1, rand_between(0, 3));  // gen_center (x, y, from_dir)
   IntTripleStack *pos_st = new_IntTripleStack();                                                                             // from_dir is saved as well
   IntTripleStack_push(pos_st, pos);
@@ -38,7 +38,7 @@ void gen_maze(Map *map) {  // generate the maze
         break;                             // stop attempting other directions
       }
 
-      /// @todo make it real random
+      // TODO make it real random
       dir = (dir + 1) % 4;                              // try next direction
       if ((dir ^ 2) == pos.third) dir = (dir + 1) % 4;  // fix when choosing the opposite direction
     }
