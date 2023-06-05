@@ -1,6 +1,16 @@
 #ifndef HEADER_H_
 #define HEADER_H_
 
+#define _POSIX_C_SOURCE 199309L
+
+#ifdef __linux__
+  #include <sys/ioctl.h>
+  #include <unistd.h>
+#elif _WIN32
+  #define NOMINMAX
+  #include <windows.h>
+#endif
+
 #include <ctype.h>
 #include <float.h>
 #include <limits.h>
@@ -10,18 +20,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#ifdef __linux__
-  #include <sys/ioctl.h>
-  #include <unistd.h>
-#elif _WIN32
-  #define NOMINMAX
-  #include <windows.h>
-#endif
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
 
-#define msg_sleep 1 * 1000 * 1000  // 1sec
+#define epsilon 1e-6f  // fix some issues caused by float point precision
+
+// #define msg_sleep 1 * 1000 * 1000  // 1sec
+
+void delay(float t) {  // t sec
+  if (t <= 0) return;
+  nanosleep(&(struct timespec){(time_t)t, (long)(t * 1000000000) % 1000000000}, NULL);
+}
 
 int rand_between(int l, int r) { return rand() % (r - l + 1) + l; }  // get a random number between [l, r] 
 
@@ -48,7 +58,7 @@ const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
 const float render_spacing = 0.001f;
 const float wall_height = 1;
-const float rotate_spacing = 0.01f;
+const float rotate_spacing = 1.f / 6.f;
 
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.2f, 0.05f, 0.05f, 0.4f};
 // 0  +HP
