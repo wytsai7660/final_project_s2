@@ -9,10 +9,12 @@
 #define MAG   "\x1B[35m"
 #define CYN   "\x1B[36m"
 #define WHT   "\x1B[37m"
+#define ATI   "\x1B[17m"
 #define RESET "\x1B[0m"
+#define DEBUG
 
 
-void drawSmallMap(Map *map, IntPair *playerPos, int smallMapSize){
+void drawMiniMap(Map *map, IntPair *playerPos, int smallMapSize, int watchTowerCnt){
     printf("player pos %d, %d\n", playerPos->first, playerPos->second);
 
     int xcenter = max(smallMapSize, min(playerPos->first, map->row - 1 - smallMapSize));
@@ -21,17 +23,58 @@ void drawSmallMap(Map *map, IntPair *playerPos, int smallMapSize){
     for(int i = xcenter - smallMapSize; i <= xcenter + smallMapSize; i++){
         for(int j = ycenter - smallMapSize; j <= ycenter + smallMapSize; j++){
             if(playerPos->first == i && playerPos->second == j){
-                printf(RED "%c " RESET, 'P');
+                printf(YEL "%c " RESET, 'P');
             }else if(map->data[i][j] == '@'){
                 printf("%c ", '@');
             }else if(map->data[i][j] == '9'){
                 printf("%c ", ' ');
             }else{
-                printf("%c ", map->data[i][j]);
+                if (watchTowerCnt) {
+                    switch (map->data[i][j]) {
+                        case '0':
+                            printf(GRN "%c " RESET, 'H');
+                            break;
+                        case '1':
+                            printf(RED "%c " RESET, 'H');
+                            break;
+                        case '2':
+                            printf(GRN "%c " RESET, 'A');
+                            break;
+                        case '3':
+                            printf(RED "%c " RESET, 'A');
+                            break;
+                        case '4':
+                            printf(GRN "%c " RESET, 'D');
+                            break;
+                        case '5':
+                            printf(RED "%c " RESET, 'D');
+                            break;
+                        case '6':
+                            printf(MAG "%c " RESET, 'M');
+                            break;
+                        case '7':
+                            printf(MAG "%c " RESET, 'W');
+                            break;
+                        default:
+                            printf("%c ", ' ');
+                            break;                        
+                    }
+                    // printf("%c ", map->data[i][j]);
+                } else{
+                    printf("%c ", ' ');
+                }
             }
         }
         printf("\n");
     }
+}
+
+void fight() {
+    printf("fight\n");
+}
+
+void gainItem() {
+    printf("gainItem\n");
 }
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p){
@@ -57,7 +100,15 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p){
     case '5':
         p->def = max(p->def-1, 0);
         break;
-    
+    case '6':
+        fight();
+        break;
+    case '7':
+        p->watchTowerCnt = 10;
+        break;
+    case '8':
+        gainItem();
+        break;
     default:
         break;
     }
@@ -95,7 +146,8 @@ int main(){
         printf("\e[1;1H\e[2J");
         printf("\e[?25l");
         printf("hp %d atk %d def %d\n", player->hp, player->atk, player->def);
-        drawSmallMap(map, &playerPos, smallMapSize);
+        printf("watchTowerCnt %d\n", player->watchTowerCnt);
+        drawMiniMap(map, &playerPos, smallMapSize, player->watchTowerCnt);
         if(ch == 'w')
         {
             dir = 2;
@@ -114,13 +166,16 @@ int main(){
         }else{
             continue;
         }
+        
+        // clear affect
+        player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
 
         if (!(map->data[playerPos.first + direction[dir][0]][playerPos.second + direction[dir][1]] == '@'))
         {
             playerPos.first += direction[dir][0];
             playerPos.second += direction[dir][1];
+            playerEvent(map, &playerPos, player);
         }
-        playerEvent(map, &playerPos, player);
         usleep(30*1000);
     }
     tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);

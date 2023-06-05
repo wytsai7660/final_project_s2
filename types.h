@@ -187,25 +187,50 @@ void Map_clear(Map *m) {
 typedef struct {
   int life, hp;
   int atk, def, crit, dir;
+  int watchTowerCnt;
   FloatPair pos;
-  int backpack[10];  // 10 types of item
+  int *backpack;
 } PlayerData;
+
+// item
+// teleport: randomly teleport to another place
+// blood++: use in battle, heal you life by 5
+// defense: use in battle, 90% chance ignore next monster's attack
+// 
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
   // TODO: decide the number
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   p->life = 5;
-  p->hp = 5;
-  p->atk = 10;
-  p->def = 10;
+  p->hp = 10;
+  p->atk = 3;
+  p->def = 3;
   p->crit = rand_between(0, 20);
+  p->watchTowerCnt = 0;
+  p->backpack = malloc(sizeof(int)*3); // 3 types of item
   // TODO: init player position
   // p->pos = make_FloatPair(0, 0);
   // p->dir = 0;
   return p;
 }
 
-void PlayerData_clear(PlayerData *p) { free(p); }
+void PlayerData_clear(PlayerData *p) { 
+  free(p->backpack);
+  free(p); 
+}
+
+typedef struct {
+  int watchTowerCnt;
+
+} Game;
+
+Game *new_Game() {
+  Game *g = malloc(sizeof(Game));
+  // TODO: decide the number
+  // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
+  g->watchTowerCnt = 0;
+  return g;
+}
 
 #endif
