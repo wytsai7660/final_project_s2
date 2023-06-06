@@ -209,7 +209,7 @@ PlayerData *new_PlayerData() {
   p->crit = rand_between(0, 20);
   p->watchTowerCnt = 0;
   p->backpack = malloc(sizeof(int) * 3);  // 3 types of item
-  // TODO: init player position
+  // TODO init player position
   // p->pos = make_FloatPair(0, 0);
   // p->dir = 0;
   return p;
@@ -227,7 +227,7 @@ typedef struct {
 
 Game *new_Game() {
   Game *g = malloc(sizeof(Game));
-  // TODO: decide the number
+  // TODO decide the number
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   g->watchTowerCnt = 0;
   return g;
