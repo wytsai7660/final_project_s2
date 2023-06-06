@@ -19,8 +19,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <termios.h>
+#include <time.h>
+
+#define RED "\x1B[31m"
+#define GRN "\x1B[32m"
+#define YEL "\x1B[33m"
+#define BLU "\x1B[34m"
+#define MAG "\x1B[35m"
+#define CYN "\x1B[36m"
+#define WHT "\x1B[37m"
+#define ATI "\x1B[7;17m"
+#define RESET "\x1B[0m"
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
@@ -78,29 +88,19 @@ const float items_ratio[] = {0.2f, 0.5f, 0.3f};
 // teleport: randomly teleport to another place
 // blood++: use in battle, heal you life by 5
 // defense: use in battle, 90% chance ignore next monster's attack
-// 
+//
 
 // sample a number from prob distrubution
 int sample(float prob[], int plen) {
-    float randfloat = (float)rand() / RAND_MAX;
-    float sum = 0;
-    for(int idx=0;idx<plen;idx++){
-        sum += prob[idx];
-        if(sum > randfloat) {
-            return idx;
-        }
+  float randfloat = (float)rand() / RAND_MAX;
+  float sum = 0;
+  for (int idx = 0; idx < plen; idx++) {
+    sum += prob[idx];
+    if (sum > randfloat) {
+      return idx;
     }
-    return -1;
+  }
+  return -1;
 }
-
-#define RED   "\x1B[31m"
-#define GRN   "\x1B[32m"
-#define YEL   "\x1B[33m"
-#define BLU   "\x1B[34m"
-#define MAG   "\x1B[35m"
-#define CYN   "\x1B[36m"
-#define WHT   "\x1B[37m"
-#define ATI   "\x1B[7;17m"
-#define RESET "\x1B[0m"
 
 #endif
