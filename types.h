@@ -186,7 +186,7 @@ typedef struct {
   int life, hp;
   int atk, def, crit, dir;
   int watchTowerCnt;
-  FloatPair pos;
+  IntPair pos;
   int *backpack;
 } PlayerData;
 
@@ -206,10 +206,11 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = rand_between(0, 20);
   p->watchTowerCnt = 0;
-  p->backpack = malloc(sizeof(int)*3); // 3 types of item
-  // TODO: init player position
-  // p->pos = make_FloatPair(0, 0);
-  // p->dir = 0;
+  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio)/sizeof(float))); // 3 types of item
+  for(int i=0;i < sizeof(items_ratio)/sizeof(float); i++) {
+    p->backpack[i] = 0;
+  }
+  p->dir = 0;
   return p;
 }
 
@@ -219,7 +220,15 @@ void PlayerData_clear(PlayerData *p) {
 }
 
 typedef struct {
+  char **message;
+
+} MessageNode;
+
+
+typedef struct {
   int watchTowerCnt;
+  int status;
+  IntPairList *playerPath;
 
 } Game;
 
@@ -227,8 +236,20 @@ Game *new_Game() {
   Game *g = malloc(sizeof(Game));
   // TODO: decide the number
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
+  g->status = 0;
+  // 0: menu
+  // 1: instruction?
+  // 2: map
+  // 3: fight
+  // 9: game over?
   g->watchTowerCnt = 0;
+  g->playerPath = new_IntPairList();
   return g;
+}
+
+void Game_clear(Game *g) {
+  IntPairList_clear(g->playerPath);
+  free(g);
 }
 
 #endif

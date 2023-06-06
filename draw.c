@@ -1,7 +1,7 @@
 #include "header.h"
 #include "types.h"
 #include "small_map.c"
-#include <termios.h>
+
 
 const char *charArray[] = {"Attack ", "Run ", "Items ", "Hello "};
 

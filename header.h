@@ -6,6 +6,7 @@
 #ifdef __linux__
   #include <sys/ioctl.h>
   #include <unistd.h>
+  #include <termios.h>
 #elif _WIN32
   #define NOMINMAX
   #include <windows.h>
@@ -20,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <termios.h>
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
