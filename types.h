@@ -33,7 +33,7 @@ typedef struct __INT_PAIR_NODE__ {
 
 // list<pair<int,int>>
 // used for saving coordinates
-/// @todo remove it and rewrite it in a better way
+/// TODO remove it and rewrite it in a better way
 typedef struct {
   IntPairNode *head, *rear;
   int size;
@@ -196,7 +196,7 @@ typedef struct {
 // teleport: randomly teleport to another place
 // blood++: use in battle, heal you life by 5
 // defense: use in battle, 90% chance ignore next monster's attack
-// 
+//
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
@@ -208,16 +208,16 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = rand_between(0, 20);
   p->watchTowerCnt = 0;
-  p->backpack = malloc(sizeof(int)*3); // 3 types of item
+  p->backpack = malloc(sizeof(int) * 3);  // 3 types of item
   // TODO: init player position
   // p->pos = make_FloatPair(0, 0);
   // p->dir = 0;
   return p;
 }
 
-void PlayerData_clear(PlayerData *p) { 
+void PlayerData_clear(PlayerData *p) {
   free(p->backpack);
-  free(p); 
+  free(p);
 }
 
 typedef struct {
