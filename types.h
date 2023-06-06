@@ -2,6 +2,8 @@
 #define TYPES_H_
 #include "header.h"
 
+// TODO need to add a queue<pair<int,int>>
+
 // pair<float,float>
 // used for recording dynamically changing coordinate
 typedef struct {
@@ -17,7 +19,7 @@ FloatPair make_FloatPair(float f1, float f2) { return (FloatPair){f1, f2}; }
 // used for saving coordinates
 typedef struct {
   int first, second;
-} IntPair;
+} IntPair;  // FIXME not using, should be removed or used
 
 IntPair make_IntPair(int i1, int i2) { return (IntPair){i1, i2}; }
 
@@ -27,7 +29,7 @@ IntPair make_IntPair(int i1, int i2) { return (IntPair){i1, i2}; }
 typedef struct __INT_PAIR_NODE__ {
   IntPair data;
   struct __INT_PAIR_NODE__ *next;
-} IntPairNode;
+} IntPairNode;  // FIXME not using, should be removed or used
 
 // list<pair<int,int>>
 // used for saving coordinates
@@ -35,7 +37,7 @@ typedef struct __INT_PAIR_NODE__ {
 typedef struct {
   IntPairNode *head, *rear;
   int size;
-} IntPairList;
+} IntPairList;  // FIXME not using, should be removed or used
 
 IntPairList *new_IntPairList() {
   IntPairList *l = malloc(sizeof(IntPairList));
