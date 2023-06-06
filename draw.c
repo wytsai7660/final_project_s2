@@ -84,8 +84,8 @@ void maploop() {
 
         printf("the input char is %c\n", ch);
         printf("the choice is %d\n", choice);
-        printHp(6, 10, 7, 3);
-        printChoice(choice, 10, 15);
+        drawHp(6, 10, 7, 3);
+        drawChoice(choice, 10, 15);
     }
     
     tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
