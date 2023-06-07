@@ -27,7 +27,7 @@ void drawBox(int height, int width, int y, int x) {
 void drawHp(int hp, int hpMax, int y, int x) {
     printf("\e[%d;%dH", y, x);
 
-    printf("|");
+    printf("HP |");
     if((float)hp < hpMax*0.3) {
         printf("\e[7;31m");
     } else if((float)hp <= hpMax*0.5) {
@@ -36,7 +36,7 @@ void drawHp(int hp, int hpMax, int y, int x) {
         printf("\e[7;32m");
     }
 
-    for(int i=0;i<10;i++){
+    for(int i=0;i<hpMax;i++){
         if(hp == i) {
             printf("\033[0m");
         }
@@ -57,6 +57,22 @@ void drawChoice(int choice, int y, int x) {
         y++;
         printf("\e[%d;%dH", y, x);
     }
+}
+
+void drawLife(int life, int y, int x) {
+    printf("\e[%d;%dH", y, x);
+    printf("LIFE: ");
+    printf(RED);
+
+    for(int i=0;i<5;i++){
+        if(life > i) {
+            printf("❤  ");
+        } else {
+            printf("    ");
+        }    
+    }
+
+    printf(RESET);
 }
 
 void maploop() {
@@ -107,14 +123,21 @@ int main() {
         } 
     }
 
+    win_col = 80;
+    win_row = 45;
     printf("\e[1;1H\e[2J");
     printf("\e[?25l");
-    drawBox(smallMapSize*2 + 1, 40, 1, 1);
-    drawBox(smallMapSize*2 + 1, (smallMapSize*2 + 1)*2 + 1, 1, 43);
-    drawMiniMap(map, &player->pos, smallMapSize, 0, 2, 45);
-    printf("\e[%d;%dH", 2, 3);
-    printf("this is the bug");
+    drawBox(smallMapSize*2 + 1, 70, 1, 1);
+    drawBox(smallMapSize*2 + 1, (smallMapSize*2 + 1)*2 + 1, 1, 73);
+    drawMiniMap(map, &player->pos, smallMapSize, 0, 2, 75);
+    playerEvent(map, &player->pos, player, game, 2, 3);
+    // printf("\e[%d;%dH", 2, 3);
+    // printf("this is the bug");
     drawChoice(1, 3, 3);
+    drawHp(player->hp, 15, 10, 3);
+    printf("\n");
+    drawLife(5, 12, 3);
+    printf("| ATK: %d | DEF: %d | CRIT: %d", 10, 10, 10);
     printf("\n");
     printf("\e[%d;%dH", 17, 1);
 }
