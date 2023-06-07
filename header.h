@@ -22,15 +22,21 @@
 #include <termios.h>
 #include <time.h>
 
-#define RED "\x1B[31m"
-#define GRN "\x1B[32m"
-#define YEL "\x1B[33m"
-#define BLU "\x1B[34m"
-#define MAG "\x1B[35m"
-#define CYN "\x1B[36m"
-#define WHT "\x1B[37m"
-#define ATI "\x1B[7;17m"
-#define RESET "\x1B[0m"
+#define RED "\e[31m"
+#define GRN "\e[32m"
+#define YEL "\e[33m"
+#define BLU "\e[34m"
+#define MAG "\e[35m"
+#define CYN "\e[36m"
+#define WHT "\e[37m"
+#define ALT "\e[7;17m"  // highlight the current option
+#define RESET "\e[0m"
+#define CLEAR "\e[1;1H\e[2J"
+#define HIDE_CURSOR "\e[?25l"
+#define SHOW_CURSOR "\e[?25h"
+
+#define text_area_height 15
+#define mini_map_size_2 7
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
