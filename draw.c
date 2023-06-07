@@ -1,33 +1,33 @@
 #include "header.h"
 #include "types.h"
 #include "small_map.c"
-#include <termios.h>
+
 
 const char *charArray[] = {"Attack ", "Run ", "Items ", "Hello "};
 
 void drawBox(int height, int width, int y, int x) {
     printf("\e[%d;%dH", y, x);
     printf("\u250C");
-    for(int i=0;i<width;i++) printf("\u2500");
+    for(int i=0;i<width-2;i++) printf("\u2500");
     printf("\u2510\n");
     printf("\e[%d;%dH", ++y, x);
 
-    for(int i=0;i<height;i++){
+    for(int i=0;i<height-2;i++){
         printf("\u2502");
-        for(int j=0;j<width;j++) printf(" ");
+        for(int j=0;j<width-2;j++) printf(" ");
         printf("\u2502\n");
         printf("\e[%d;%dH", ++y, x);
     }
 
     printf("\u2514");
-    for(int i=0;i<width;i++) printf("\u2500");
+    for(int i=0;i<width-2;i++) printf("\u2500");
     printf("\u2518\n");
 }
 
 void drawHp(int hp, int hpMax, int y, int x) {
-    printf("\e[%d;%dH", y, x);
+    // printf("\e[%d;%dH", y, x);
 
-    printf("|");
+    printf("HP |");
     if((float)hp < hpMax*0.3) {
         printf("\e[7;31m");
     } else if((float)hp <= hpMax*0.5) {
@@ -36,7 +36,7 @@ void drawHp(int hp, int hpMax, int y, int x) {
         printf("\e[7;32m");
     }
 
-    for(int i=0;i<10;i++){
+    for(int i=0;i<hpMax;i++){
         if(hp == i) {
             printf("\033[0m");
         }
@@ -57,6 +57,28 @@ void drawChoice(int choice, int y, int x) {
         y++;
         printf("\e[%d;%dH", y, x);
     }
+}
+
+void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
+    printf("\e[%d;%dH", y, x);
+    printf("LIFE: ");
+    printf(RED);
+
+    for(int i=0;i<5;i++){
+        if(p->life > i) {
+            printf("❤  ");
+        } else {
+            printf("    ");
+        }    
+    }
+
+    printf(RESET);
+    // 26
+    // for(int i=0;i<6+4*5)
+
+    printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
+    
+    drawHp(p->hp, p->hp, 0, 0);
 }
 
 void maploop() {
@@ -84,37 +106,44 @@ void maploop() {
 
         printf("the input char is %c\n", ch);
         printf("the choice is %d\n", choice);
-        printHp(6, 10, 7, 3);
-        printChoice(choice, 10, 15);
+        drawHp(6, 10, 7, 3);
+        drawChoice(choice, 10, 15);
     }
     
     tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
 }
 
-int main() {
-    Map *map = new_Map(17, 87);
-    PlayerData *player = new_PlayerData();
-    Game *game = new_Game();
-    int smallMapSize = 5;
-    game->status = 2;
+// int main() {
+//     Map *map = new_Map(17, 87);
+//     PlayerData *player = new_PlayerData();
+//     Game *game = new_Game();
+//     int smallMapSize = 5;
+//     game->status = 2;
 
-    gen_maze(map);
-    for (int i = 0; i < map->row; i++) {
-        for (int j = 0; j < map->col; j++) {
-            if(map->data[i][j] == 'P'){
-                player->pos = make_IntPair(i, j);
-            }
-        } 
-    }
+//     gen_maze(map);
+//     for (int i = 0; i < map->row; i++) {
+//         for (int j = 0; j < map->col; j++) {
+//             if(map->data[i][j] == 'P'){
+//                 player->pos = make_IntPair(i, j);
+//             }
+//         } 
+//     }
 
-    printf("\e[1;1H\e[2J");
-    printf("\e[?25l");
-    drawBox(smallMapSize*2 + 1, 40, 1, 1);
-    drawBox(smallMapSize*2 + 1, (smallMapSize*2 + 1)*2 + 1, 1, 43);
-    drawMiniMap(map, &player->pos, smallMapSize, 0, 2, 45);
-    printf("\e[%d;%dH", 2, 3);
-    printf("this is the bug");
-    drawChoice(1, 3, 3);
-    printf("\n");
-    printf("\e[%d;%dH", 17, 1);
-}
+//     win_col = 80;
+//     win_row = 45;
+//     printf("\e[1;1H\e[2J");
+//     printf("\e[?25l");
+//     drawBox(smallMapSize*2 + 1, 70, 1, 1);
+//     drawBox(smallMapSize*2 + 1, (smallMapSize*2 + 1)*2 + 1, 1, 73);
+//     drawMiniMap(map, &player->pos, smallMapSize, 0, 2, 75);
+//     playerEvent(map, &player->pos, player, game, 2, 3);
+//     // printf("\e[%d;%dH", 2, 3);
+//     // printf("this is the bug");
+//     drawChoice(1, 3, 3);
+//     drawHp(player->hp, 15, 10, 3);
+//     printf("\n");
+//     drawLife(5, 12, 3);
+//     printf("| ATK: %d | DEF: %d | CRIT: %d", 10, 10, 10);
+//     printf("\n");
+//     printf("\e[%d;%dH", 17, 1);
+// }

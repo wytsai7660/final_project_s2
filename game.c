@@ -1,6 +1,6 @@
 // #include "3d_renderer"
 // #include "battle.c"
-// #include "draw.c"
+#include "draw.c"
 // #include "enemy.c"
 #include "header.h"
 #include "types.h"
@@ -17,4 +17,79 @@ int main() {
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #endif
+
+  // setting the cursor
+  struct termios old_attr, new_attr;
+  tcgetattr(STDIN_FILENO, &old_attr);
+  new_attr = old_attr;
+  new_attr.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
+
+  // variable init
+  Map *map = new_Map(35, 87);
+  PlayerData *player = new_PlayerData();
+  Game *game = new_Game();
+  char ch;
+  const int smallMapSize = 7;
+  game->status = 2;
+
+  gen_maze(map);
+  for (int i = 0; i < map->row; i++) {
+      for (int j = 0; j < map->col; j++) {
+          if(map->data[i][j] == 'P'){
+              player->pos = make_IntPair(i, j);
+          }
+      } 
+  }
+
+  //game loop
+  while(ch = getchar()) {
+
+    printf("\e[1;1H\e[2J");
+    printf("\e[?25l");
+
+
+
+    switch (ch) {
+      case 'w':
+          player->dir = 2;
+          break;
+      case 'a':
+          player->dir = 1;
+          break;
+      case 's':
+          player->dir = 0;
+          break;
+      case 'd':
+          player->dir = 3;
+          break;
+      case 'e':
+          break;
+      default:
+          continue;
+    }
+    
+    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, 1, 1);
+    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, 1, win_col - MAP_AREA_WIDTH + 1);
+    printf("\e[%d;%dH", 2, 3);
+    printf("[W][A][S][D] To Move    [E] To Open Backpack");
+
+    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@'))
+    {
+      player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
+      player->pos.first += direction[player->dir][0];
+      player->pos.second += direction[player->dir][1];
+      playerEvent(map, &player->pos, player, game, 4, 3);
+    }
+
+    drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, 2, win_col - MAP_AREA_WIDTH + 3);
+    
+    // drawChoice(1, 3, 3);
+    // drawHp(player->hp, 15, 10, 3);
+    printf("\n");
+    drawStatusBar(player, win_col - MAP_AREA_WIDTH, TEXT_AREA_HEIGHT - 1, 3);
+    printf("\n");
+    printf("\e[%d;%dH", 19, 1);
+    // delay(0.03);
+  }
 }
