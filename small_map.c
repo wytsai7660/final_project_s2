@@ -77,7 +77,7 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '1':
         printf("you loose hp!");
-        p->hp = max(p->hp-1, 0);
+        p->hp = max(p->hp-1, 1);
         break;
     case '2':
         printf("you gain atk!");
@@ -105,7 +105,7 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '8':
         printf("you gain some item!");
-        item = sample(items_ratio, sizeof(items_ratio)/sizeof(float));
+        item = sample(items_ratio, sizeof(items_ratio)/sizeof(items_ratio[0]));
         p->backpack[item]++;
         break;
     default:
@@ -148,24 +148,24 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
 //         printf("watchTowerCnt %d\n", player->watchTowerCnt);
 //         drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, 1, 1);
 
-//         if(ch == 'w')
-//         {
-//             player->dir = 2;
-//         }
-//         else if(ch == 'a')
-//         {
-//             player->dir = 1;
-//         }
-//         else if(ch == 's')
-//         {
-//             player->dir = 0;
-//         }
-//         else if(ch == 'd')
-//         {
-//             player->dir = 3;
-//         }else{
-//             continue;
-//         }
+        // if(ch == 'w')
+        // {
+        //     player->dir = 2;
+        // }
+        // else if(ch == 'a')
+        // {
+        //     player->dir = 1;
+        // }
+        // else if(ch == 's')
+        // {
+        //     player->dir = 0;
+        // }
+        // else if(ch == 'd')
+        // {
+        //     player->dir = 3;
+        // }else{
+        //     continue;
+        // }
 
 //         if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@'))
 //         {
