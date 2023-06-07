@@ -6,6 +6,7 @@
 #ifdef __linux__
   #include <sys/ioctl.h>
   #include <unistd.h>
+  #include <termios.h>
 #elif _WIN32
   #define NOMINMAX
   #include <windows.h>
@@ -40,6 +41,10 @@
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
 
+#define SMALL_MAP_SIZE 7
+#define TEXT_AREA_HEIGHT 17 // smallmapsize*2 + 3
+#define MAP_AREA_WIDTH 33 // text_area_height*2 - 1
+
 #define epsilon 1e-6f  // fix some issues caused by float point precision
 
 // #define msg_sleep 1 * 1000 * 1000  // 1sec
@@ -69,6 +74,9 @@ void swap(void* a, void* b, size_t size) {
 //     s         3            (0, 1)
 const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 int win_row, win_col;
+
+const char directions[] = {'s', 'a', 'w', 'd'};
+const int numDirections = sizeof(directions) / sizeof(directions[0]);
 
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
@@ -107,5 +115,13 @@ int sample(float prob[], int plen) {
   }
   return -1;
 }
+
+// ARCHIVE
+// for (int i = 0; i < numDirections; i++) {
+//     if (ch == directions[i]) {
+//         player->dir = i;
+//         break;
+//     }
+// }
 
 #endif
