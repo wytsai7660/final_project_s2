@@ -236,7 +236,7 @@ typedef struct {
 
 Game *new_Game() {
   Game *g = malloc(sizeof(Game));
-  // TODO: decide the number
+  // TODO decide the number
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   g->status = 0;
   // 0: menu
