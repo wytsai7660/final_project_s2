@@ -3,8 +3,12 @@
 
 bool sign_of_tan(float angle) { return (int)(angle / PI_2) & 1; }  // FIXME not using, should be removed or used
 
-int half_floor(float f) { return (int)floorf(f + .5f); }
-int half_ceil(float f) { return (int)ceilf(f - .5f); }
+int half_round(float f) { return (int)floorf(f + .5f); }
+// ex. 1  ->1, 1.3->1
+//     1.7->2, 2  ->2
+// int half_round(float f) { return (int)ceilf(f - .5f); }
+// ex. 1  ->1, 1.3->1
+//     1.7->2, 2  ->2
 
 void scan(Map map, FloatPair pos, float dir) {
   char **sight = malloc((unsigned)map.row * sizeof(char *));
@@ -14,7 +18,6 @@ void scan(Map map, FloatPair pos, float dir) {
   float angle = dir * PI_2, l_angle = fmodf(angle + fov / 2 + 2 * PI + epsilon, 2 * PI), r_angle = fmodf(angle - fov / 2 + 2 * PI, 2 * PI);
   float l_tan = tanf(-l_angle), r_tan = tanf(-r_angle);
 
-  // printf("%f %f\n", l_angle, 2 * PI);
   printf("angle   = %f (%f pi)\n", angle, angle / PI);
   printf("l_angle = %f (%f pi)\tl_tan = %f\n", l_angle, l_angle / PI, l_tan);
   printf("r_angle = %f (%f pi)\tr_tan = %f\n", r_angle, r_angle / PI, r_tan);
@@ -31,7 +34,7 @@ void scan(Map map, FloatPair pos, float dir) {
 
   printf("l_y         = %f\t, r_y         = %f\n", l_y, r_y);
 
-  int rounded_l_y = half_floor(l_y), rounded_r_y = half_ceil(r_y);
+  int rounded_l_y = half_round(l_y), rounded_r_y = half_round(r_y);
 
   // printf("rounded_l_y = %-*d, rounded_r_y = %d\n", 9 + (l_y < 0), rounded_l_y, rounded_r_y);
   printf("rounded_l_y = %d\t, rounded_r_y = %d\n", rounded_l_y, rounded_r_y);
@@ -39,18 +42,19 @@ void scan(Map map, FloatPair pos, float dir) {
   printf("\n");
 
   int row_begin = max(min(min(rounded_l_y, rounded_r_y), floorf(pos.second)), 0), row_end = min(max(max(rounded_l_y, rounded_r_y), ceilf(pos.second)), map.row - 1);
+  int mid = pos.second;
   // row_begin =
   // if (l_tan > 0) {
-  //   row_begin = half_floor(l_y);       // TODO poteintial bug when fov is small (<pi/2)
+  //   row_begin = half_round(l_y);       // TODO poteintial bug when fov is small (<pi/2)
   //   if (row_begin < 0) row_begin = 0;  // TODO remove this line (for debug only
   // } else {
-  //   row_end = half_floor(l_y);                      // TODO poteintial bug when fov is small (<pi/2)
+  //   row_end = half_round(l_y);                      // TODO poteintial bug when fov is small (<pi/2)
   //   if (row_end >= map.row) row_end = map.row - 1;  // TODO remove this line (for debug only
   // }
 
   printf("row_begin = %d, row_end = %d\n", row_begin, row_end);
 
-  for (int row = row_begin; row <= row_end; row++) {
+  for (int row = row_begin; row <= pos.second; row++) {  // FIXME upper part
     //
 
     float l_x, r_x;  // TODO remove l_x and r_x
@@ -70,9 +74,11 @@ void scan(Map map, FloatPair pos, float dir) {
     int col_begin = (int)roundf(l_x - epsilon);
     // fix when out of bound or l_angle > pi
     if (col_begin < 0 || l_angle > PI) col_begin = 0;
-    else if (col_begin >= map.col) col_begin = map.col;
+    // else if (col_begin >= map.col) col_begin = map.col; //It's OK
 
-    int col_end = r_angle > PI ? map.col - 1 : (int)roundf(r_x);
+    int col_end = r_angle > PI || r_x >= map.col ? map.col - 1 : (int)roundf(r_x);
+    // if (col_end >= map.col) col_end = map.col - 1;
+    // else if (col_begin) col_begin = map.col;
     printf("row = %d, col_begin = %f => %d, col_end = %f => %d\n", row, l_x, col_begin, r_x, col_end);
 
     for (int col = col_begin; col <= (col_end >= map.col ? map.col - 1 : col_end); col++) {
@@ -85,6 +91,44 @@ void scan(Map map, FloatPair pos, float dir) {
 
     //
   }
+  // upper part end
+  for (int row = pos.second; row <= row_end; row++) {  // FIXME lower part
+    //
+
+    float l_x, r_x;  // TODO remove l_x and r_x
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // the x coordinate of the l_line when y = row
+    if (l_angle < PI_2) l_x = ((float)row - (pos.second - .5f)) / l_tan + pos.first;
+    else l_x = ((float)row - (pos.second + .5f)) / l_tan + pos.first;
+
+    // the x coordinate of the r_line when y = row
+    if (r_angle < PI_2) r_x = ((float)row - (pos.second + .5f)) / r_tan + pos.first;
+    else r_x = ((float)row - (pos.second - .5f)) / r_tan + pos.first;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    int col_begin = (int)roundf(l_x - epsilon);
+    // fix when out of bound or l_angle > pi
+    if (col_begin < 0 || l_angle > PI) col_begin = 0;
+    // else if (col_begin >= map.col) col_begin = map.col; //It's OK
+
+    int col_end = r_angle > PI || r_x >= map.col ? map.col - 1 : (int)roundf(r_x);
+    // if (col_end >= map.col) col_end = map.col - 1;
+    // else if (col_begin) col_begin = map.col;
+    printf("row = %d, col_begin = %f => %d, col_end = %f => %d\n", row, l_x, col_begin, r_x, col_end);
+
+    for (int col = col_begin; col <= (col_end >= map.col ? map.col - 1 : col_end); col++) {
+      if (map.data[row][col] == '@') {
+        sight[row][col] = '%';
+      } else {
+        printf("%c", map.data[row][col]);
+      }
+    }
+
+    //
+  }  // lower part end
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

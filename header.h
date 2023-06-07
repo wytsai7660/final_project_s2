@@ -36,7 +36,7 @@
 #define SHOW_CURSOR "\e[?25h"
 
 #define text_area_height 15
-#define mini_map_size_2 7
+#define minimap_size_2 7
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
