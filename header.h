@@ -89,7 +89,7 @@ int sample(float ratio[], int length) {
                   />|||<\
                     [|]
                     [|]
-                    +-+
+                    """
           A(1)  __-- P --__  D(-1)
               |/_         _\|             */
 
