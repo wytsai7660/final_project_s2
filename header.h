@@ -67,6 +67,8 @@ void swap(void* a, void* b, size_t size) {
   }
 }
 
+char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
+
 //     w         1            (0,-1)
 //  a     d   2     0   (-1,0)      (1, 0)
 //     s         3            (0, 1)
