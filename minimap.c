@@ -73,11 +73,11 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
     {
     case '0':
         printf("you gain hp!");
-        p->hp++;
+        p->hpMax++;
         break;
     case '1':
         printf("you loose hp!");
-        p->hp = max(p->hp-1, 1);
+        p->hp = max(p->hpMax-1, 1);
         break;
     case '2':
         printf("you gain atk!");

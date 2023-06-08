@@ -72,7 +72,7 @@ int main() {
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, 1, 1);
     drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, 1, win_col - MAP_AREA_WIDTH + 1);
     printf("\e[%d;%dH", 2, 3);
-    printf("[W][A][S][D] To Move    [E] To Open Backpack");
+    printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
 
     if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@'))
     {
@@ -87,6 +87,7 @@ int main() {
     // drawChoice(1, 3, 3);
     // drawHp(player->hp, 15, 10, 3);
     printf("\n");
+    drawBackpack(player, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
     drawStatusBar(player, win_col - MAP_AREA_WIDTH, TEXT_AREA_HEIGHT - 1, 3);
     printf("\n");
     printf("\e[%d;%dH", 19, 1);
