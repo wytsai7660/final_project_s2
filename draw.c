@@ -81,14 +81,26 @@ void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
     drawHp(p->hp, p->hp, 0, 0);
 }
 
-void drawBackpack(PlayerData *p, int y, int x) {
+void drawBackpack(PlayerData *p, int choice, int y, int x) {
     drawBox(8, 70, y, x);
     printf("\e[%d;%dH", y + 1, x + 2);
-    for(int i=0; i<5; i++) {
-        printf("ITEM %d   ", i + 1);
+    printf("BACKPACK");
+    printf("\e[%d;%dH  ", y + 3, x + 2);
+    
+    for(int i=0; i<4; i++) {
+        if(p->backpack[i] == 0) printf(GRY);
+        if(i == choice) printf(ALT);
+        printf("%s", items_name[i]);
+        printf(RESET);
+        printf("   ");
     }
+
+    printf("\e[%d;%dH  ", y + 4, x + 2);
+    printf("    %-17d%-18d%-15d%d", p->backpack[0], p->backpack[1], p->backpack[2], p->backpack[3]);
+
     printf("\e[%d;%dH", y + 2, x + 2);
-    // printf("ITEM 1  ITEM 2  ITEM 3 ITEM 4");
+    printf("\e[%d;%dH", y + 6, x + 2);
+    printf("     [A][D] To Choose item  [ENTER] To Select  [Q] To Leave");
 }
 
 void maploop() {

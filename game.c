@@ -5,6 +5,27 @@
 #include "header.h"
 #include "types.h"
 
+void chooseItem(PlayerData *player) {
+  int choice = 0;
+  char ch;
+  while (ch = getchar())
+  {
+    drawBackpack(player, 0, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+    if (ch == 'a') {
+      choice = max(choice - 1, 0);
+    } else if (ch == 'd') {
+      choice = min(choice + 1, sizeof(items_ratio)/sizeof(float));
+    } else if (ch == '\n') {
+      
+    } else if (ch == 'q') {
+      break;
+    } else {
+      continue;
+    }
+  }
+  
+}
+
 int main() {
   srand((unsigned)time(NULL));
   // obtain the terminal window's size (row and column) 
@@ -26,7 +47,7 @@ int main() {
   tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
 
   // variable init
-  Map *map = new_Map(35, 87);
+  Map *map = new_Map(MAP_ROW, MAP_COL);
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
   char ch;
@@ -87,10 +108,12 @@ int main() {
     // drawChoice(1, 3, 3);
     // drawHp(player->hp, 15, 10, 3);
     printf("\n");
-    drawBackpack(player, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+    drawBackpack(player, 0, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
     drawStatusBar(player, win_col - MAP_AREA_WIDTH, TEXT_AREA_HEIGHT - 1, 3);
     printf("\n");
     printf("\e[%d;%dH", 19, 1);
     // delay(0.03);
   }
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
 }

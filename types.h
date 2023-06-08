@@ -208,7 +208,7 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = 10;
   p->watchTowerCnt = 0;
-  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 3 types of item
+  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 4 types of item
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 0;
   p->dir = 0;
   return p;

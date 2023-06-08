@@ -30,6 +30,7 @@
 #define MAG "\e[35m"
 #define CYN "\e[36m"
 #define WHT "\e[37m"
+#define GRY "\e[90m"
 #define ALT "\e[7;17m"  // highlight the current option
 #define RESET "\e[0m"
 #define CLEAR "\e[1;1H\e[2J"
@@ -42,6 +43,9 @@
 #define SMALL_MAP_SIZE 7
 #define TEXT_AREA_HEIGHT 17  // smallmapsize * 2 + 3
 #define MAP_AREA_WIDTH 33    // text_area_height * 2 - 1
+
+#define MAP_ROW 35
+#define MAP_COL 87
 
 #define EPSILON 1e-6f  // fix some issues caused by float point precision
 
@@ -129,11 +133,12 @@ const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.
 // 8  gain item
 // 9  -
 
-const float items_ratio[] = {0.2f, 0.5f, 0.3f};
+const char *items_name[] = {"Blinkstone", "Vitality Potion", "Guardian Shield", "Magic Compass"};
+const float items_ratio[] = {0.1f, 0.3f, 0.2f, 0.1f, 0.3f};
 // item
-// 0 teleport: randomly teleport to another place
-// 1 blood++: use in battle, heal you life by 5
-// 2 defense: use in battle, 90% chance ignore next monster's attack
-//
+// 0 Blinkstone: randomly teleport to another place
+// 1 Vitality Potion: use in battle, heal you life by 5
+// 2 Guardian Shield: use in battle, 90% chance ignore next monster's attack
+// 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
 
 #endif
