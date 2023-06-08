@@ -45,9 +45,11 @@
 
 #define EPSILON 1e-6f  // fix some issues caused by float point precision
 
-// #define msg_sleep 1 * 1000 * 1000  // 1sec
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void delay(float t) {  // t sec
+// sleep t seconds
+void delay(float t) {
   if (t <= 0) return;
   nanosleep(&(struct timespec){(time_t)t, (long)(t * 1000000000) % 1000000000}, NULL);
 }
@@ -56,6 +58,8 @@ int rand_between(int l, int r) { return rand() % (r - l + 1) + l; }  // get a ra
 
 int max(int a, int b) { return a > b ? a : b; }
 int min(int a, int b) { return a < b ? a : b; }
+
+bool float_equal(float a, float b) { return fabsf(a - b) < EPSILON; }
 
 // a swap function that can swap almost anything (in a beautiful way)
 void swap(void* a, void* b, size_t size) {
@@ -67,21 +71,27 @@ void swap(void* a, void* b, size_t size) {
   }
 }
 
-char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
-
-//     w         1            (0,-1)
-//  a     d   2     0   (-1,0)      (1, 0)
-//     s         3            (0, 1)
-const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-int win_row, win_col;
+// return a number (index) based on the probability distribution array
+int sample(float ratio[], int length) {
+  float randfloat = (float)rand() / (float)RAND_MAX;  // [0, 1]
+  float sum = 0;
+  for (int i = 0; i < length; i++) {
+    sum += ratio[i];
+    if (sum > randfloat) return i;
+  }
+  return -1;
+}
 
 // A/D rotate, W move
-
-//            W(2)
-//           /|\ 
-//            |
-// A(1)  __-- P --__  D(-1)
-//     |/_         _\|
+/*                   ,
+                    /^\   W(2)
+                   //|\\
+                  />|||<\
+                    [|]
+                    [|]
+                    +-+
+          A(1)  __-- P --__  D(-1)
+              |/_         _\|             */
 
 int convert_move(char c) {
   if (toupper(c) == 'W') return 2;   // move forward
@@ -90,11 +100,22 @@ int convert_move(char c) {
   return 0;                          // invalid input
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int win_row, win_col;
+//     w         1            (0,-1)
+//  a     d   2     0   (-1,0)      (1, 0)
+//     s         3            (0, 1)
+const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+
+// constants for 3d rendering
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
 const float render_spacing = 0.001f;
 const float wall_height = 1;
 const float rotate_spacing = 1.f / 6.f;
+const char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
 
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.2f, 0.05f, 0.05f, 0.4f};
 // 0  +HP
@@ -114,24 +135,5 @@ const float items_ratio[] = {0.2f, 0.5f, 0.3f};
 // 1 blood++: use in battle, heal you life by 5
 // 2 defense: use in battle, 90% chance ignore next monster's attack
 //
-
-// return a number (index) based on the probability distribution array
-int sample(float ratio[], int length) {
-  float randfloat = (float)rand() / (float)RAND_MAX;  // [0, 1]
-  float sum = 0;
-  for (int i = 0; i < length; i++) {
-    sum += ratio[i];
-    if (sum > randfloat) return i;
-  }
-  return -1;
-}
-
-// ARCHIVE
-// for (int i = 0; i < numDirections; i++) {
-//     if (ch == directions[i]) {
-//         player->dir = i;
-//         break;
-//     }
-// }
 
 #endif
