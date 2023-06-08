@@ -12,4 +12,6 @@ int main() {
   char a = '6', b = '6', c = '6', d = '6';
   swap(&a, &b, 1);
   swap(&c, &d, 1);
+  float f = -1.f / 0.f;
+  printf("%f, isinf=%d, isnan=%d, isnormal=%d", f, isinf(f), isnan(f), isnormal(f));
 }

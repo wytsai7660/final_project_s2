@@ -193,10 +193,9 @@ typedef struct {
 } PlayerData;
 
 // item
-// teleport: randomly teleport to another place
-// blood++: use in battle, heal you life by 5
-// defense: use in battle, 90% chance ignore next monster's attack
-//
+// 0 teleport: randomly teleport to another place
+// 1 blood++: use in battle, heal you life by 5
+// 2 defense: use in battle, 90% chance ignore next monster's attack
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
@@ -206,12 +205,10 @@ PlayerData *new_PlayerData() {
   p->hp = 10;
   p->atk = 3;
   p->def = 3;
-  p->crit = rand_between(0, 20);
+  p->crit = 10;
   p->watchTowerCnt = 0;
-  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio)/sizeof(float))); // 3 types of item
-  for(int i=0;i < sizeof(items_ratio)/sizeof(float); i++) {
-    p->backpack[i] = 0;
-  }
+  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 3 types of item
+  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 0;
   p->dir = 0;
   return p;
 }
@@ -221,17 +218,20 @@ void PlayerData_clear(PlayerData *p) {
   free(p);
 }
 
-typedef struct {
-  char **message;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+typedef struct {  // TODO seems not being used, use it or remove it
+  char **message;
 } MessageNode;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
   int watchTowerCnt;
   int status;
   IntPairList *playerPath;
-
 } Game;
 
 Game *new_Game() {

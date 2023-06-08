@@ -5,8 +5,8 @@
 
 #ifdef __linux__
   #include <sys/ioctl.h>
-  #include <unistd.h>
   #include <termios.h>
+  #include <unistd.h>
 #elif _WIN32
   #define NOMINMAX
   #include <windows.h>
@@ -36,16 +36,14 @@
 #define HIDE_CURSOR "\e[?25l"
 #define SHOW_CURSOR "\e[?25h"
 
-#define text_area_height 15
-
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
 
 #define SMALL_MAP_SIZE 7
-#define TEXT_AREA_HEIGHT 17 // smallmapsize*2 + 3
-#define MAP_AREA_WIDTH 33 // text_area_height*2 - 1
+#define TEXT_AREA_HEIGHT 17  // smallmapsize * 2 + 3
+#define MAP_AREA_WIDTH 33    // text_area_height * 2 - 1
 
-#define epsilon 1e-6f  // fix some issues caused by float point precision
+#define EPSILON 1e-6f  // fix some issues caused by float point precision
 
 // #define msg_sleep 1 * 1000 * 1000  // 1sec
 
@@ -75,8 +73,20 @@ void swap(void* a, void* b, size_t size) {
 const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 int win_row, win_col;
 
-const char directions[] = {'s', 'a', 'w', 'd'};
-const int numDirections = sizeof(directions) / sizeof(directions[0]);
+// A/D rotate, W move
+
+//            W(2)
+//           /|\ 
+//            |
+// A(1)  __-- P --__  D(-1)
+//     |/_         _\|
+
+int convert_move(char c) {
+  if (toupper(c) == 'W') return 2;   // move forward
+  if (toupper(c) == 'A') return 1;   // turn left
+  if (toupper(c) == 'D') return -1;  // turn right
+  return 0;                          // invalid input
+}
 
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
@@ -98,20 +108,18 @@ const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.
 
 const float items_ratio[] = {0.2f, 0.5f, 0.3f};
 // item
-// teleport: randomly teleport to another place
-// blood++: use in battle, heal you life by 5
-// defense: use in battle, 90% chance ignore next monster's attack
+// 0 teleport: randomly teleport to another place
+// 1 blood++: use in battle, heal you life by 5
+// 2 defense: use in battle, 90% chance ignore next monster's attack
 //
 
-// sample a number from prob distrubution
-int sample(float prob[], int plen) {
-  float randfloat = (float)rand() / RAND_MAX;
+// return a number (index) based on the probability distribution array
+int sample(float ratio[], int length) {
+  float randfloat = (float)rand() / (float)RAND_MAX;  // [0, 1]
   float sum = 0;
-  for (int idx = 0; idx < plen; idx++) {
-    sum += prob[idx];
-    if (sum > randfloat) {
-      return idx;
-    }
+  for (int i = 0; i < length; i++) {
+    sum += ratio[i];
+    if (sum > randfloat) return i;
   }
   return -1;
 }
