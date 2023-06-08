@@ -1,6 +1,6 @@
 #include "header.h"
 #include "types.h"
-#include "small_map.c"
+#include "minimap.c"
 
 
 const char *charArray[] = {"Attack ", "Run ", "Items ", "Hello "};
@@ -27,7 +27,7 @@ void drawBox(int height, int width, int y, int x) {
 void drawHp(int hp, int hpMax, int y, int x) {
     // printf("\e[%d;%dH", y, x);
 
-    printf("HP |");
+    printf("HP: |");
     if((float)hp < hpMax*0.3) {
         printf("\e[7;31m");
     } else if((float)hp <= hpMax*0.5) {
@@ -50,7 +50,7 @@ void drawChoice(int choice, int y, int x) {
     printf("\e[%d;%dH", y, x);
     for(int i=0; i<3; i++) {
         if(i == choice) {
-            printf(ATI "%s\n" RESET, charArray[i]);
+            printf(ALT "%s\n" RESET, charArray[i]);
         } else {
             printf("%s\n", charArray[i]);
         }
@@ -79,6 +79,16 @@ void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
     drawHp(p->hp, p->hp, 0, 0);
+}
+
+void drawBackpack(PlayerData *p, int y, int x) {
+    drawBox(8, 70, y, x);
+    printf("\e[%d;%dH", y + 1, x + 2);
+    for(int i=0; i<5; i++) {
+        printf("ITEM %d   ", i + 1);
+    }
+    printf("\e[%d;%dH", y + 2, x + 2);
+    // printf("ITEM 1  ITEM 2  ITEM 3 ITEM 4");
 }
 
 void maploop() {
