@@ -185,7 +185,7 @@ void Map_clear(Map *m) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  int life, hp;
+  int life, hp, hpMax;
   int atk, def, crit, dir;
   int watchTowerCnt;
   IntPair pos;
@@ -203,6 +203,7 @@ PlayerData *new_PlayerData() {
   // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   p->life = 5;
   p->hp = 10;
+  p->hpMax = 10;
   p->atk = 3;
   p->def = 3;
   p->crit = 10;

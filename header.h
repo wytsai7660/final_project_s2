@@ -117,7 +117,7 @@ const float wall_height = 1;
 const float rotate_spacing = 1.f / 6.f;
 const char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
 
-const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.2f, 0.05f, 0.05f, 0.4f};
+const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.05f, 0.5f};
 // 0  +HP
 // 1  -HP
 // 2  +ATK
