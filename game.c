@@ -1,7 +1,7 @@
-// #include "3d_renderer"
-// #include "battle.c"
+#include "3d_renderer"
+#include "battle.c"
 #include "draw.c"
-// #include "enemy.c"
+#include "enemy.c"
 #include "header.h"
 #include "types.h"
 
@@ -56,19 +56,17 @@ int main() {
 
   gen_maze(map);
   for (int i = 0; i < map->row; i++) {
-      for (int j = 0; j < map->col; j++) {
-          if(map->data[i][j] == 'P'){
-              player->pos = make_IntPair(i, j);
-          }
-      } 
+    for (int j = 0; j < map->col; j++) {
+      if (map->data[i][j] == 'P') {
+        player->pos = make_IntPair(i, j);
+      }
+    }
   }
 
   //game loop
   while(ch = getchar()) {
 
     printf(HIDE_CURSOR);
-
-
 
     switch (ch) {
       case 'w':
@@ -92,9 +90,9 @@ int main() {
           printf(CLEAR);
           break;
       default:
-          continue;
+        continue;
     }
-    
+
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, 1, 1);
     drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, 1, win_col - MAP_AREA_WIDTH + 1);
     printf("\e[%d;%dH", 2, 3);
