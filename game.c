@@ -1,9 +1,30 @@
-#include "3d_renderer"
-#include "battle.c"
+// #include "3d_renderer"
+// #include "battle.c"
 #include "draw.c"
-#include "enemy.c"
+// #include "enemy.c"
 #include "header.h"
 #include "types.h"
+
+void chooseItem(PlayerData *p, Game *g) {
+  int choice = 0;
+  char ch;
+  drawBackpack(p, g, 0, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+
+  while (ch = getchar())
+  {
+    if (ch == 'a') {
+      choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
+    } else if (ch == 'd') {
+      choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
+    } else if (ch == '\n') {
+      if(p->backpack[choice] && items_maze_usability[choice]) g->items_enabled[choice] = !g->items_enabled[choice];
+    } else if (ch == 'q') {
+      break;
+    }
+
+    drawBackpack(p, g, choice, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+  }
+}
 
 int main() {
   srand((unsigned)time(NULL));
@@ -26,7 +47,7 @@ int main() {
   tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
 
   // variable init
-  Map *map = new_Map(35, 87);
+  Map *map = new_Map(MAP_ROW, MAP_COL);
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
   char ch;
@@ -42,26 +63,32 @@ int main() {
     }
   }
 
-  // game loop
-  while (ch = getchar()) {
-    printf("\e[1;1H\e[2J");
-    printf("\e[?25l");
+  //game loop
+  while(ch = getchar()) {
+
+    printf(HIDE_CURSOR);
 
     switch (ch) {
       case 'w':
-        player->dir = 2;
-        break;
+          printf(CLEAR);
+          player->dir = 2;
+          break;
       case 'a':
-        player->dir = 1;
-        break;
+          printf(CLEAR);
+          player->dir = 1;
+          break;
       case 's':
-        player->dir = 0;
-        break;
+          printf(CLEAR);
+          player->dir = 0;
+          break;
       case 'd':
-        player->dir = 3;
-        break;
+          printf(CLEAR);
+          player->dir = 3;
+          break;
       case 'e':
-        break;
+          chooseItem(player, game);
+          printf(CLEAR);
+          break;
       default:
         continue;
     }
@@ -71,22 +98,43 @@ int main() {
     printf("\e[%d;%dH", 2, 3);
     printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
 
-    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@')) {
+    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && ch != 'e')
+    {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       player->pos.first += direction[player->dir][0];
       player->pos.second += direction[player->dir][1];
       playerEvent(map, &player->pos, player, game, 4, 3);
+      game->round++;
+    }
+
+    if(game->items_enabled[0]) {
+      int y, x;
+      printf("\e[%d;%dH", 5, 3);
+      do {
+        y = rand_between(0, MAP_ROW);
+        x = rand_between(0, MAP_COL);
+      } while(map->data[y][x] == '@');
+
+      printf("teleport to coordinate: %d, %d", y, x);
+      player->pos.first = y, player->pos.second = x;
+      player->backpack[0]--;
+      game->items_enabled[0] = false;
+    }
+    if(game->items_enabled[3]) {
+      player->watchTowerCnt = 10;
+      player->backpack[3]--;
+      game->items_enabled[3] = false;
     }
 
     drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, 2, win_col - MAP_AREA_WIDTH + 3);
-
-    // drawChoice(1, 3, 3);
-    // drawHp(player->hp, 15, 10, 3);
-    printf("\n");
-    drawBackpack(player, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
     drawStatusBar(player, win_col - MAP_AREA_WIDTH, TEXT_AREA_HEIGHT - 1, 3);
-    printf("\n");
-    printf("\e[%d;%dH", 19, 1);
+    printf("\e[%d;%dH", win_row, 1);
     // delay(0.03);
   }
+
+  // free var
+  PlayerData_clear(player);
+  Game_clear(game);
+  Map_clear(map);
+  tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
 }
