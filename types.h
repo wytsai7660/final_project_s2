@@ -199,8 +199,6 @@ typedef struct {
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
-  // TODO decide the number
-  // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   p->life = 5;
   p->hp = 10;
   p->hpMax = 10;
@@ -208,8 +206,20 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = 10;
   p->watchTowerCnt = 0;
-  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 3 types of item
+#ifdef DEBUG
+  p->life = 99;
+  p->hp = 15;
+  p->hpMax = 15;
+  p->atk = 999;
+  p->def = 999;
+  p->crit = 99;
+  p->watchTowerCnt = 0;
+#endif
+  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 4 types of item
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 0;
+#ifdef DEBUG
+  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 99;
+#endif
   p->dir = 0;
   return p;
 }
@@ -222,9 +232,46 @@ void PlayerData_clear(PlayerData *p) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-typedef struct {  // TODO seems not being used, use it or remove it
-  char **message;
-} MessageNode;
+typedef struct {
+    float **data;
+    int n_states; // TODO not yet being used, will remove it some time
+    int atk;
+    int def;
+    int hp;
+    int crit;
+    float *moveDistrube;
+}Enemy;
+
+Enemy *new_Enemy(PlayerData *p, int n_states) {
+    if(n_states < 2) return NULL;
+    Enemy *e = malloc(sizeof(Enemy));
+
+    float sum = 0;
+    // prob of paper, sccisor, stone
+    float *moveDistrube = malloc(sizeof(float) * 3);
+    for(int i = 0;i < 3;i++){
+        moveDistrube[i] = (float)rand() / RAND_MAX;
+        sum += moveDistrube[i];
+    }
+
+    // normalize the numbers to sum up to 1
+    for(int i = 0;i < 3;i++){
+        moveDistrube[i] /= sum;
+    }
+
+    float **tmp = malloc(n_states * sizeof(float *));
+    for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc(n_states * sizeof(float)), 0, n_states);
+    *e = (Enemy){tmp, n_states, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), rand_between(5, 10), rand_between(0, 10), moveDistrube};
+    return e;
+}
+
+void Enemy_clear(Enemy *e) {
+  free(e->moveDistrube);
+  for(int i=0;i<e->n_states;i++) free(e->data[i]);
+  free(e->data);
+  free(e);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -232,26 +279,30 @@ typedef struct {  // TODO seems not being used, use it or remove it
 typedef struct {
   int watchTowerCnt;
   int status;
+  int round;
+  bool *items_enabled;
   IntPairList *playerPath;
 } Game;
 
 Game *new_Game() {
   Game *g = malloc(sizeof(Game));
-  // TODO decide the number
-  // *p = (PlayerData){5, 10, 10, 10, 20, 0, make_FloatPair(a, b), array init};
   g->status = 0;
+  g->round = 0;
   // 0: menu
   // 1: instruction?
   // 2: map
   // 3: fight
   // 9: game over?
-  g->watchTowerCnt = 0;
+  // g->watchTowerCnt = 0; // TODO remove it
+  g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
+  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
   g->playerPath = new_IntPairList();
   return g;
 }
 
 void Game_clear(Game *g) {
   IntPairList_clear(g->playerPath);
+  free(g->items_enabled);
   free(g);
 }
 

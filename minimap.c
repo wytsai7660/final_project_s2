@@ -2,67 +2,6 @@
 #include "header.h"
 
 
-void drawMiniMap(Map *map, IntPair *playerPos, int smallMapSize, int watchTowerCnt, int y, int x){
-    // printf("player pos %d, %d\n", playerPos->first, playerPos->second);
-    printf("\e[%d;%dH", y, x);
-
-    int xcenter = max(smallMapSize, min(playerPos->first, map->row - 1 - smallMapSize));
-    int ycenter = max(smallMapSize, min(playerPos->second, map->col - 1 - smallMapSize));
-
-    for(int i = xcenter - smallMapSize; i <= xcenter + smallMapSize; i++){
-        for(int j = ycenter - smallMapSize; j <= ycenter + smallMapSize; j++){
-            if(playerPos->first == i && playerPos->second == j){
-                printf(YEL "%c " RESET, 'P');
-            }else if(map->data[i][j] == '@'){
-                printf("%c ", '@');
-            }else if(map->data[i][j] == '9'){
-                printf("%c ", ' ');
-            }else{
-                if (watchTowerCnt) {
-                    switch (map->data[i][j]) {
-                        case '0':
-                            printf(GRN "%c " RESET, 'H');
-                            break;
-                        case '1':
-                            printf(RED "%c " RESET, 'H');
-                            break;
-                        case '2':
-                            printf(GRN "%c " RESET, 'A');
-                            break;
-                        case '3':
-                            printf(RED "%c " RESET, 'A');
-                            break;
-                        case '4':
-                            printf(GRN "%c " RESET, 'D');
-                            break;
-                        case '5':
-                            printf(RED "%c " RESET, 'D');
-                            break;
-                        case '6':
-                            printf(MAG "%c " RESET, 'M');
-                            break;
-                        case '7':
-                            printf(MAG "%c " RESET, 'W');
-                            break;
-                        case '8':
-                            printf(MAG "%c " RESET, 'I');
-                            break;
-                        default:
-                            printf("%c ", ' ');
-                            break;                        
-                    }
-                    // printf("%c ", map->data[i][j]);
-                } else{
-                    printf("%c ", ' ');
-                }
-            }
-        }
-        printf("\n");
-        printf("\e[%d;%dH", ++y, x);
-    }
-}
-
-
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x){
     char ch = m->data[playerPos->first][playerPos->second];
     m->data[playerPos->first][playerPos->second] = '9';
@@ -101,11 +40,11 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '7':
         printf("you can see the all the map!");
-        p->watchTowerCnt = 10;
+        p->watchTowerCnt += 1;
         break;
     case '8':
-        printf("you gain some item!");
         item = sample(items_ratio, sizeof(items_ratio)/sizeof(items_ratio[0]));
+        printf("you gain %s x1!", items_name[item]);
         p->backpack[item]++;
         break;
     default:
