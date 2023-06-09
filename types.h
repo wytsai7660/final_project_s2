@@ -240,6 +240,8 @@ typedef struct {
     int hp;
     int crit;
     float *moveDistrube;
+    int PlayerMove;
+    int EnemyMove;
 }Enemy;
 
 Enemy *new_Enemy(PlayerData *p, int n_states) {
@@ -293,15 +295,12 @@ Game *new_Game() {
   // 2: map
   // 3: fight
   // 9: game over?
-  // g->watchTowerCnt = 0; // TODO remove it
   g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
-  g->playerPath = new_IntPairList();
   return g;
 }
 
 void Game_clear(Game *g) {
-  IntPairList_clear(g->playerPath);
   free(g->items_enabled);
   free(g);
 }

@@ -1,14 +1,66 @@
 // #include "3d_renderer"
 // #include "battle.c"
 #include "draw.c"
+#include "map.c"
 // #include "enemy.c"
 #include "header.h"
 #include "types.h"
 
+
+void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x){
+    char ch = m->data[playerPos->first][playerPos->second];
+    m->data[playerPos->first][playerPos->second] = '9';
+    int item;
+    
+    printf("\e[%d;%dH", y, x);
+    switch (ch)
+    {
+    case '0':
+        printf("you gain hp!");
+        p->hpMax++;
+        break;
+    case '1':
+        printf("you loose hp!");
+        p->hp = max(p->hpMax-1, 1);
+        break;
+    case '2':
+        printf("you gain atk!");
+        p->atk++;
+        break;
+    case '3':
+        printf("you loose atk!");
+        p->atk = max(p->atk-1, 1);
+        break;
+    case '4':
+        printf("you gain atk!");
+        p->def++;
+        break;
+    case '5':
+        printf("you loose atk!");
+        p->def = max(p->def-1, 0);
+        break;
+    case '6':
+        printf("you encounter the monster!");
+        // game->status = 3;
+        break;
+    case '7':
+        printf("you can see the all the map!");
+        p->watchTowerCnt += 1;
+        break;
+    case '8':
+        item = sample(items_ratio, sizeof(items_ratio)/sizeof(items_ratio[0]));
+        printf("you gain %s x1!", items_name[item]);
+        p->backpack[item]++;
+        break;
+    default:
+        break;
+    }
+}
+
 void chooseItem(PlayerData *p, Game *g) {
   int choice = 0;
   char ch;
-  drawBackpack(p, g, 0, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+  drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
 
   while (ch = getchar())
   {
@@ -22,7 +74,7 @@ void chooseItem(PlayerData *p, Game *g) {
       break;
     }
 
-    drawBackpack(p, g, choice, TEXT_AREA_HEIGHT / 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+    drawBackpack(p, g, choice, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
   }
 }
 
@@ -93,9 +145,9 @@ int main() {
         continue;
     }
 
-    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, 1, 1);
-    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, 1, win_col - MAP_AREA_WIDTH + 1);
-    printf("\e[%d;%dH", 2, 3);
+    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
+    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
     printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
 
     if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && ch != 'e')
@@ -103,13 +155,13 @@ int main() {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       player->pos.first += direction[player->dir][0];
       player->pos.second += direction[player->dir][1];
-      playerEvent(map, &player->pos, player, game, 4, 3);
+      playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
       game->round++;
     }
 
     if(game->items_enabled[0]) {
       int y, x;
-      printf("\e[%d;%dH", 5, 3);
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
       do {
         y = rand_between(0, MAP_ROW);
         x = rand_between(0, MAP_COL);
@@ -126,8 +178,8 @@ int main() {
       game->items_enabled[3] = false;
     }
 
-    drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, 2, win_col - MAP_AREA_WIDTH + 3);
-    drawStatusBar(player, win_col - MAP_AREA_WIDTH, TEXT_AREA_HEIGHT - 1, 3);
+    drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
+    drawStatusBar(player, win_col - MAP_AREA_WIDTH, win_row - 3, 3);
     printf("\e[%d;%dH", win_row, 1);
     // delay(0.03);
   }
