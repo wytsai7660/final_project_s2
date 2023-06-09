@@ -121,7 +121,7 @@ const float wall_height = 1;
 const float rotate_spacing = 1.f / 6.f;
 const char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
 
-const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.05f, 0.5f};
+const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.15f, 0.4f};
 // 0  +HP
 // 1  -HP
 // 2  +ATK
@@ -143,6 +143,6 @@ const bool items_maze_usability[] = {true, false, false, true};
 // 2 Guardian Shield: use in battle, 90% chance ignore next monster's attack
 // 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
 
-#define DEBUG
+// #define DEBUG
 
 #endif

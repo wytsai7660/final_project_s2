@@ -1,7 +1,7 @@
-#include "3d_renderer"
-#include "battle.c"
+// #include "3d_renderer"
+// #include "battle.c"
 #include "draw.c"
-#include "enemy.c"
+// #include "enemy.c"
 #include "header.h"
 #include "types.h"
 
@@ -104,6 +104,7 @@ int main() {
       player->pos.first += direction[player->dir][0];
       player->pos.second += direction[player->dir][1];
       playerEvent(map, &player->pos, player, game, 4, 3);
+      game->round++;
     }
 
     if(game->items_enabled[0]) {
@@ -116,10 +117,12 @@ int main() {
 
       printf("teleport to coordinate: %d, %d", y, x);
       player->pos.first = y, player->pos.second = x;
+      player->backpack[0]--;
       game->items_enabled[0] = false;
     }
     if(game->items_enabled[3]) {
       player->watchTowerCnt = 10;
+      player->backpack[3]--;
       game->items_enabled[3] = false;
     }
 
@@ -129,5 +132,9 @@ int main() {
     // delay(0.03);
   }
 
+  // free var
+  PlayerData_clear(player);
+  Game_clear(game);
+  Map_clear(map);
   tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
 }

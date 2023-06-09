@@ -43,8 +43,8 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         p->watchTowerCnt += 1;
         break;
     case '8':
-        printf("you gain some item!");
         item = sample(items_ratio, sizeof(items_ratio)/sizeof(items_ratio[0]));
+        printf("you gain %s x1!", items_name[item]);
         p->backpack[item]++;
         break;
     default:
