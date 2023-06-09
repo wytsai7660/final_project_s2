@@ -170,7 +170,7 @@ Map *new_Map(int r, int c) {
   if (r <= 0 || c <= 0) return NULL;
   Map *m = malloc(sizeof(Map));
   char **tmp = malloc((unsigned)r * sizeof(char *));
-  for (int i = 0; i < r; i++) tmp[i] = memset(malloc((unsigned)c * sizeof(char)), '@', (unsigned)c);
+  for (int i = 0; i < r; i++) tmp[i] = memset(malloc((unsigned)c * sizeof(char)), '@', (unsigned)c * sizeof(char));
   *m = (Map){tmp, r, c, (r * c - r - c - 1) / 2, 0};
   return m;
 }
