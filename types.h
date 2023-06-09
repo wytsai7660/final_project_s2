@@ -208,8 +208,20 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = 10;
   p->watchTowerCnt = 0;
+#ifdef DEBUG
+  p->life = 99;
+  p->hp = 15;
+  p->hpMax = 15;
+  p->atk = 999;
+  p->def = 999;
+  p->crit = 99;
+  p->watchTowerCnt = 0;
+#endif
   p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 4 types of item
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 0;
+#ifdef DEBUG
+  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 99;
+#endif
   p->dir = 0;
   return p;
 }
@@ -232,6 +244,7 @@ typedef struct {  // TODO seems not being used, use it or remove it
 typedef struct {
   int watchTowerCnt;
   int status;
+  bool *items_enabled;
   IntPairList *playerPath;
 } Game;
 
@@ -246,6 +259,8 @@ Game *new_Game() {
   // 3: fight
   // 9: game over?
   g->watchTowerCnt = 0;
+  g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
+  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
   g->playerPath = new_IntPairList();
   return g;
 }

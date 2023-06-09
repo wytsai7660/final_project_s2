@@ -134,11 +134,15 @@ const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.
 // 9  -
 
 const char *items_name[] = {"Blinkstone", "Vitality Potion", "Guardian Shield", "Magic Compass"};
-const float items_ratio[] = {0.1f, 0.3f, 0.2f, 0.1f, 0.3f};
+const float items_ratio[] = {0.1f, 0.4f, 0.2f, 0.3f};
+const bool items_maze_usability[] = {true, false, false, true};
+// bool items_enabled[] = {false, false, false, false};
 // item
 // 0 Blinkstone: randomly teleport to another place
 // 1 Vitality Potion: use in battle, heal you life by 5
 // 2 Guardian Shield: use in battle, 90% chance ignore next monster's attack
 // 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
+
+#define DEBUG
 
 #endif
