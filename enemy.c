@@ -1,21 +1,6 @@
 #include "header.h"
 #include "types.h"
 
-// event
-// boss hp below 20
-// boss got damage over 20
-// boss hp is 1
-// win in the fight
-// equal 
-// loss
-
-// state
-// copy: copy what player's do on previous round
-// copy plus: throw what can beat player's last round
-// copy min: throw what will loose player's last round
-// striaght: keep the same for 2 ~ 5 round
-// random: sample from random disturbute
-// 
 
 char *moves[] = {"Paper", "Scissor", "Stone"};
 char *gameResults[] = {"tie", "enemy win", "you win"};
@@ -41,10 +26,6 @@ float bossTransferMatrix[2][3][3] = {
 
 int roundRemain = 0;
 int policy = 0;
-
-// void nextPolicy() {
-
-// }
 
 int enemyNextMove(int lastPlayerMove, int lastEnemyMove) {
     int enemyNextMove = rand_between(0, 2);
@@ -99,11 +80,26 @@ int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove)
     return result;
 }
 
+// event
+// boss hp below 20
+// boss got damage over 20
+// boss hp is 1
+// win in the fight
+// equal 
+// loss
 void bossPolicy(Game *g, Enemy *e) {
     if(e->hp <= 20) {
         e->bossState = sample(bossTransferMatrix[0][e->bossState], 3);
     }else if(g->damage > 20) {
         e->bossState = sample(bossTransferMatrix[1][e->bossState], 3);
+    }
+
+    if(e->bossState == 0) {
+        e->atk = 20;
+    }else if(e->bossState == 1) {
+        e->atk = 30;
+    } else {
+        e->def = 20;
     }
 }
 

@@ -53,6 +53,18 @@ void drawSolidBox(int height, int width, int tick, int y, int x) {
     
 }
 
+void drawAnimation(Animation *ani, int frame, int type, int y, int x) {
+    printf("\e[%d;%dH", y, x);
+    for (int i = 0; i < ani->row; i++) {
+        for (int j = 0; j < ani->col; j++) {
+            printf("%c", ani->data[type][frame][i][j]);
+        }
+        printf("\n");
+        printf("\e[%d;%dH", ++y, x);
+    }
+}
+
+
 void drawHp(int hp, int hpMax) {
     if(hp < 0 || hpMax <= 0) return;
 

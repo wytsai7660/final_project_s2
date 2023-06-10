@@ -274,6 +274,53 @@ void Enemy_clear(Enemy *e) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+typedef struct
+{
+    int types;
+    int frames;
+    int row;
+    int col;
+    char ****data;
+}Animation;
+
+Animation *new_animation(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Failed to open file: %s\n", filename);
+        return NULL;
+    }
+
+    Animation *ani = malloc(sizeof(Animation));
+    fscanf(file, "%d", &(ani->types));
+    fscanf(file, "%d", &(ani->frames));
+    fscanf(file, "%d", &(ani->row));
+    fscanf(file, "%d", &(ani->col));
+
+    // allocate memory & read from file
+    ani->data = malloc(ani->types * sizeof(char***));
+    for (int i = 0; i < ani->types; i++) {
+        fgetc(file);
+        ani->data[i] = malloc(ani->frames * sizeof(char**));
+        for (int j = 0; j < ani->frames; j++) {
+            ani->data[i][j] = malloc(ani->row * sizeof(char*));
+            for (int k = 0; k < ani->row; k++) {
+                ani->data[i][j][k] = malloc((ani->col + 1) * sizeof(char)); // +1 for null terminator
+                fgets(ani->data[i][j][k], ani->col + 1, file);
+                ani->data[i][j][k][strcspn(ani->data[i][j][k], "\n")] = '\0'; // remove trailing newline
+            }
+        }
+    }
+    
+    fclose(file);
+    return ani;
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 typedef struct {
   int watchTowerCnt;
   int status;
