@@ -9,7 +9,7 @@
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x){
     char ch = m->data[playerPos->first][playerPos->second];
-    m->data[playerPos->first][playerPos->second] = '9';
+    if (ch != '7') m->data[playerPos->first][playerPos->second] = '9';
     int item;
     
     printf("\e[%d;%dH", y, x);
@@ -76,7 +76,9 @@ void chooseItem(PlayerData *p, Game *g) {
           } else if (ch == 'd') {
             choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
           } else if (ch == '\n') {
-            if(p->backpack[choice] && items_maze_usability[choice]) g->items_enabled[choice] = !g->items_enabled[choice];
+            if(p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
+              g->items_enabled[choice] = !g->items_enabled[choice];
+            }
           } else if (ch == 'q') {
             break;
           } else {
@@ -204,13 +206,13 @@ int main() {
       game->items_enabled[0] = false;
     }
     if(game->items_enabled[3]) {
-      player->watchTowerCnt = 10;
+      player->watchTowerCnt += 10;
       player->backpack[3]--;
       game->items_enabled[3] = false;
     }
 
-    drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
-    drawStatusBar(player, win_col - MAP_AREA_WIDTH, win_row - 3, 3);
+    drawMiniMap(map, &player->pos, MINIMAP_SIZE, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
+    drawStatusBar(player, true, win_row - 3, 3);
 
     end = clock();
     one_tick(start, end);

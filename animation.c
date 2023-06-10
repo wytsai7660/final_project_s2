@@ -49,3 +49,19 @@ void printCircle(char circle[FRAMES][ROWS][COLS], int frame, int y, int x) {
     }
 }
 
+int main() {
+    Game *game = new_Game();
+
+    switch (game->status)
+    {
+    case 0:
+        /* code */
+        break;
+    case 1:
+        /* code */
+        break;
+    
+    default:
+        break;
+    }
+}
