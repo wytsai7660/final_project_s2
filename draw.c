@@ -25,16 +25,48 @@ void drawBox(int height, int width, int y, int x) {
 
 // coordinate on center
 void drawSolidBox(int height, int width, int tick, int y, int x) {
-    for(int i=0;i<height;i++) {
-      printf("\e[%d;%dH", y + i, x - width / 2);
-      for(int j=0;j<width;j++) {
-        printf("%c", j%2 + tick%2 ? ' ' : '@');
-      }
-      printf("\n");
+    if(tick == 0) {
+        for(int i=0;i<height;i++) {
+            printf("\e[%d;%dH", y + i, x - width / 2);
+        for(int j=0;j<width;j++) {
+            printf("%c", j%2 ? ' ' : '@');
+        }
+        printf("\n");
+        }
+    }else if (tick == 1){
+        for(int i=0;i<height;i++) {
+            printf("\e[%d;%dH", y + i, x - width / 2);
+        for(int j=0;j<width;j++) {
+            printf("%c", j%2 ? ' ' : '.');
+        }
+        printf("\n");
+        }
+    }else {
+        for(int i=0;i<height;i++) {
+            printf("\e[%d;%dH", y + i, x - width / 2);
+        for(int j=0;j<width;j++) {
+            printf("%c", j%2 ? ' ' : '+');
+        }
+        printf("\n");
+        }
+    }
+    
+}
+
+void drawAnimation(Animation *ani, int frame, int type, int y, int x) {
+    printf("\e[%d;%dH", y, x);
+    for (int i = 0; i < ani->row; i++) {
+        for (int j = 0; j < ani->col; j++) {
+            printf("%c", ani->data[type][frame][i][j]);
+        }
+        printf("\n");
+        printf("\e[%d;%dH", ++y, x);
     }
 }
 
+
 void drawHp(int hp, int hpMax) {
+    if(hp < 0 || hpMax <= 0) return;
 
     printf("HP: |");
     if((float)hp < hpMax*0.3) {
@@ -65,7 +97,7 @@ void drawChoice(char *option[], int choice, int y, int x) {
     printf("\n");
 }
 
-void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
+void drawStatusBar(PlayerData *p, bool printHp, int y, int x) {
     printf("\e[%d;%dH", y, x);
     printf("LIFE: ");
     printf(RED);
@@ -84,7 +116,7 @@ void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
 
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
-    drawHp(p->hpMax, p->hpMax);
+    if(printHp) drawHp(p->hpMax, p->hpMax);
 }
 
 void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {
@@ -94,7 +126,7 @@ void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {
     printf("\e[%d;%dH  ", y + 3, x + 2);
     
     for(int i=0; i<4; i++) {
-        if(p->backpack[i] == 0 || !items_maze_usability[i]) {
+        if(p->backpack[i] == 0 || g->status == 2 && !items_maze_usability[i] || g->status == 3 && items_maze_usability[i]) {
             printf(GRY);
         } else {
             if(g->items_enabled[i]) printf(YEL);
