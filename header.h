@@ -40,7 +40,7 @@
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
 
-#define SMALL_MAP_SIZE 7
+#define MINIMAP_SIZE 7
 #define TEXT_AREA_HEIGHT 17  // smallmapsize * 2 + 3
 #define MAP_AREA_WIDTH 33    // text_area_height * 2 - 1
 
@@ -48,6 +48,8 @@
 #define MAP_COL 87
 
 #define EPSILON 1e-6f  // fix some issues caused by float point precision
+
+#define ITEM_TYPES 4
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +68,7 @@ int min(int a, int b) { return a < b ? a : b; }
 bool float_equal(float a, float b) { return fabsf(a - b) < EPSILON; }
 
 // a swap function that can swap almost anything (in a beautiful way)
-void swap(void* a, void* b, size_t size) {
+void swap(void *a, void *b, size_t size) {
   if (a == b) return;
   char *ptr1 = a, *ptr2 = b;
   while (size--) {
@@ -117,9 +119,9 @@ const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
 const float render_spacing = 0.001f;
-const float wall_height = 1;
+const float wall_height_2 = .5f;
 const float rotate_spacing = 1.f / 6.f;
-const char luminance_arr[] = ".,-~:;=!*#$@";  // 12 chars
+const char grayscale[] = ".,-~:;=!*#$@";  // 12 chars
 
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.15f, 0.4f};
 // 0  +HP
@@ -133,16 +135,17 @@ const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.
 // 8  gain item
 // 9  -
 
-const char *items_name[] = {"Blinkstone", "Vitality Potion", "Guardian Shield", "Magic Compass"};
+const char *const items_name[] = {"Blinkstone", "Vitality Potion", "Guardian Shield", "Magic Compass"};
 const float items_ratio[] = {0.1f, 0.4f, 0.2f, 0.3f};
 const bool items_maze_usability[] = {true, false, false, true};
-// bool items_enabled[] = {false, false, false, false};
+
 // item
 // 0 Blinkstone: randomly teleport to another place
 // 1 Vitality Potion: use in battle, heal you life by 5
 // 2 Guardian Shield: use in battle, 90% chance ignore next monster's attack
 // 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
 
+// bool items_enabled[] = {false, false, false, false};
 // #define DEBUG
 
 #endif
