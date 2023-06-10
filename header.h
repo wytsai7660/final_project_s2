@@ -153,12 +153,13 @@ const bool items_maze_usability[] = {true, false, false, true};
 
 clock_t start, end;
 double cpu_time_used;
+int tick;
 
 void one_tick(clock_t start, clock_t end) {
   printf("\e[%d;%dH" HIDE_CURSOR, win_row - 1, 1);
-  // end = clock();
   cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-  printf("Time taken: %f seconds\n", cpu_time_used);
+  tick = tick >= 999 ? 0 : tick + 1;
+  printf("Time taken: %f seconds, Tick: %d\n", cpu_time_used, tick);
   delay(0.03 - cpu_time_used*2);
 }
 

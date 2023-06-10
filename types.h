@@ -215,6 +215,9 @@ PlayerData *new_PlayerData() {
   p->watchTowerCnt = 0;
 #endif
   for (unsigned i = 0; i < ITEM_TYPES; i++) p->backpack[i] = 0;  // currently 4 types of item
+#ifdef DEBUG
+  for (unsigned i = 0; i < ITEM_TYPES; i++) p->backpack[i] = 50;
+#endif
   p->dir = 0;
   return p;
 }
@@ -227,6 +230,7 @@ void PlayerData_clear(PlayerData *p) { free(p); }
 typedef struct {
     float **data;
     int n_states; // TODO not yet being used, will remove it some time
+    int bossState;
     int atk;
     int def;
     int hp;
@@ -257,7 +261,7 @@ Enemy *new_Enemy(PlayerData *p, int n_states) {
     float **tmp = malloc(n_states * sizeof(float *));
     for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc(n_states * sizeof(float)), 0, n_states);
     int hp = p->hpMax - 5 + rand_between(0, 10);
-    *e = (Enemy){tmp, n_states, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), hp, hp, rand_between(0, 10), moveDistrube};
+    *e = (Enemy){tmp, n_states, 0, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), hp, hp, rand_between(0, 10), moveDistrube};
     return e;
 }
 
@@ -275,6 +279,13 @@ typedef struct {
   int status;
   int round;
   bool *items_enabled;
+  bool isCrit;
+  float damage;
+  bool inputLocked;
+  // int *enemyMoves;
+  // int *playerMoves;
+  int enemyOldMoves;
+  int playerOldMoves;
   IntPairList *playerPath;
 } Game;
 
@@ -286,7 +297,11 @@ Game *new_Game() {
   // 1: instruction?
   // 2: map
   // 3: fight
+  // 8: win
   // 9: game over?
+
+  // g->enemyMoves = malloc(sizeof(int) * 50);
+  // g->playerMoves = malloc(sizeof(int) * 50);
   g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
   return g;

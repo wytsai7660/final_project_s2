@@ -17,17 +17,42 @@
 // random: sample from random disturbute
 // 
 
-const char *moves[] = {"Paper", "Scissor", "Stone"};
+char *moves[] = {"Paper", "Scissor", "Stone"};
+char *gameResults[] = {"tie", "enemy win", "you win"};
+
+// boss states
+// 0: normal mode
+// 1: aggressive mode
+// 2: defensive mode
+float bossTransferMatrix[2][3][3] = {
+{
+    // hp below 20
+    {0.3, 0.1, 0.6}, // normal mode
+    {0.5, 0.3, 0.2}, // aggressive mode
+    {0.1, 0.0, 0.9}, // defensive mode
+},
+{
+    // damage over 20
+    {0.9, 0.1, 0.0},
+    {0.3, 0.3, 0.4},
+    {0.1, 0.2, 0.7},
+}
+};
+
 int roundRemain = 0;
 int policy = 0;
-int policyWinRate[5][2] = {0};
 
-int resolve(int lastPlayerMove, int lastEnemyMove) {
+// void nextPolicy() {
+
+// }
+
+int enemyNextMove(int lastPlayerMove, int lastEnemyMove) {
     int enemyNextMove = rand_between(0, 2);
     if(!roundRemain) {
         roundRemain = rand_between(2, 5);
         // policy 持續幾回合
         policy = rand_between(0, 4);
+        // 選哪個 policy
     }else {
         roundRemain--;
     }
@@ -49,14 +74,38 @@ int resolve(int lastPlayerMove, int lastEnemyMove) {
     }
     else if(policy == 4) {
         enemyNextMove = rand_between(0, 2);
+        // 隨機
     }
 
     return enemyNextMove;
 }
 
-// player
-// real hit = atk * (1 + crit)
-// real damage = (int) damage / (10 + def)
+// real damage = (int) atk * (1 + isCrit ? 2 : 1) / (1 + def / 10)
+int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove) {
+    int result = (enemyMove - playerMove + 3) % 3;
+    if (result == 0) {
+        // tie
+    } else if (result == 1) {
+        // enemy win
+        g->isCrit = rand_between(1, 100) <= e->crit;
+        g->damage = e->atk * (g->isCrit ? 2 : 1) / (1 + p->def / 10.0);
+        p->hp -= (int)g->damage;
+    } else if (result == 2) {
+        // player win
+        g->isCrit = rand_between(1, 100) <= p->crit;
+        g->damage = p->atk * (g->isCrit ? 2 : 1) / (1 + e->def / 10.0);
+        e->hp -= (int)g->damage;
+    }
+    return result;
+}
+
+void bossPolicy(Game *g, Enemy *e) {
+    if(e->hp <= 20) {
+        e->bossState = sample(bossTransferMatrix[0][e->bossState], 3);
+    }else if(g->damage > 20) {
+        e->bossState = sample(bossTransferMatrix[1][e->bossState], 3);
+    }
+}
 
 void printStates(Enemy *e){
     printf("n_states: %d\n", e->n_states);
@@ -68,48 +117,5 @@ void printStates(Enemy *e){
 
         }
         printf("\n");
-    }
-}
-
-int main() {
-    srand(time(NULL));
-    PlayerData *p = new_PlayerData();
-    Enemy *e = new_Enemy(p, 5);
-    e->PlayerMove = rand_between(0, 2);
-    e->EnemyMove = rand_between(0, 2);
-    int playerwin = 0, enemywin = 0;
-    int move;
-    for(int i=0;i<10000;i++)
-    {
-        printf("round remain %d, policy %d\n", roundRemain, policy);
-        printf("your move: ");
-        //scanf("%d", &move);
-        move = sample(e->moveDistrube, 3);
-        e->EnemyMove = resolve(e->PlayerMove, e->EnemyMove);
-        e->PlayerMove = move;
-        printf("enemys move: %d\n", e->EnemyMove);
-        switch ((e->EnemyMove - e->PlayerMove + 3) % 3)
-        {
-        case 1:
-            printf("enemy win\n");
-            policyWinRate[policy][0]++;
-            enemywin++;
-            break;
-        case 2:
-            printf("player win\n");
-            policyWinRate[policy][1]++;
-            playerwin++;
-            break;
-        case 0:
-            printf("tie\n");
-            break;
-        
-        default:
-            break;
-        }
-    }
-    printf("enemy win %d, player win %d\n", enemywin, playerwin);
-    for(int i=0;i<5;i++) {
-        printf("policy %d enemy win %d, player win %d\n", i, policyWinRate[i][0], policyWinRate[i][1]);
     }
 }
