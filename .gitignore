@@ -5,6 +5,7 @@
 *.in
 *.out
 *.exe
+*.py
 z-*
 .vscode
 tmp*
