@@ -3,7 +3,7 @@
 
 bool sign_of_tan(float angle) { return (int)(angle / PI_2) & 1; }  // FIXME not using, should be removed or used
 
-#define DEBUG
+// #define DEBUG
 
 int round_upper(float f) {  // default
   if (isinf(f)) {
@@ -24,9 +24,13 @@ int round_lower(float f) {
 }
 
 void scan(Map map, FloatPair pos, float dir) {
+  float **z_buffer = malloc((unsigned)win_row * sizeof(float *));
+  char **display = malloc((unsigned)win_row * sizeof(char *));
+  for (int i = 0; i < win_row; i++) z_buffer[i] = memset(malloc((unsigned)win_col * sizeof(float)), -INFINITY, (unsigned)win_col * sizeof(float)), display[i] = memset(malloc((unsigned)win_col * sizeof(char)), ' ', (unsigned)win_col * sizeof(char));
+
 #ifdef DEBUG
   char **sight = malloc((unsigned)map.row * sizeof(char *));
-  for (int i = 0; i < map.row; i++) sight[i] = memset(malloc((unsigned)map.col * sizeof(char)), '-', (unsigned)map.col);
+  for (int i = 0; i < map.row; i++) sight[i] = memset(malloc((unsigned)map.col * sizeof(char)), '-', (unsigned)map.col * sizeof(char));
 #endif
   float angle = dir * PI_2, l_angle = fmodf(angle + fov / 2 + 2 * PI + EPSILON, 2 * PI), r_angle = fmodf(angle - fov / 2 + 2 * PI, 2 * PI);
   float l_tan = tanf(-l_angle), r_tan = tanf(-r_angle);
@@ -44,16 +48,15 @@ void scan(Map map, FloatPair pos, float dir) {
   else l_y = l_tan * (((float)map.col - .5f) - pos.first) + pos.second;                        // r_bound
   if (r_angle > PI_2 && r_angle <= 3 * PI_2) r_y = r_tan * ((-.5f) - pos.first) + pos.second;  // l_bound
   else r_y = r_tan * (((float)map.col - .5f) - pos.first) + pos.second;                        // r_bound
-#ifdef DEBUG
-  printf("l_y = %f, r_y = %f\n", l_y, r_y);
-#endif
+
   int upper_row, lower_row;
   if (l_y < r_y) upper_row = round_lower(l_y), lower_row = round_upper(r_y);
   else upper_row = round_lower(r_y), lower_row = round_upper(l_y);
   int mid = round_upper(pos.second), row_begin = max(min(min(upper_row, lower_row), mid), 0), row_end = min(max(max(upper_row, lower_row), mid), map.row - 1);
 #ifdef DEBUG
+  printf("l_y = %f, r_y = %f\n\n", l_y, r_y);
   printf("upper_row = %d\t, lower_row = %d\n\n", upper_row, lower_row);
-  printf("row_begin = %d, mid = %d, row_end = %d\n", row_begin, mid, row_end);
+  printf("row_begin = %d, mid = %d, row_end = %d\n\n", row_begin, mid, row_end);
 #endif
   for (int row = row_begin; row <= row_end; row++) {
     int col_begin, col_end;  // the leftmost/rightmost block's col of the l/r_line when y = row
@@ -68,6 +71,22 @@ void scan(Map map, FloatPair pos, float dir) {
 #ifdef DEBUG
         sight[row][col] = '%';
 #endif
+        //              .
+        //             /|\ Y                                  |
+        //              |      __. Z                          |      __. Z
+        //              |       /|                            |       /|
+        //              |     /                               |     /
+        //              |   /                                 |   /
+        //              | /                                   | /
+        // -------------+-------------> X   =>   -------------+-------------> X
+        //            / |                                   / |
+        //          /   |                                 /   |
+        //        /     |                               /     |
+        //      /       |                             /       |
+        //              |                                     |
+        //              |                                    \|/ Z(h)
+        //                                                    '
+
         if (!float_equal((float)row, pos.second)) {
           for (float r = (float)row - .5f; r <= (float)row + .5f; r += render_spacing) {  // TODO change to dinamic spacing
             for (float h = -0.5; h <= 0.5; h += render_spacing) {

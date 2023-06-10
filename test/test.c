@@ -1,4 +1,4 @@
-#include "../3d_renderer.c"
+// #include "../3d_renderer.c"
 #include "../header.h"
 #include "../map.c"
 #include "../types.h"
@@ -13,5 +13,7 @@ int main() {
   swap(&a, &b, 1);
   swap(&c, &d, 1);
   float f = -1.f / 0.f;
-  printf("%f, isinf=%d, isnan=%d, isnormal=%d", f, isinf(f), isnan(f), isnormal(f));
+  printf("%f, isinf=%d, isnan=%d, isnormal=%d\n", f, isinf(f), isnan(f), isnormal(f));
+  int arr[ITEM_TYPES] = {};
+  for (int i = 0; i < ITEM_TYPES; i++) printf("%d ", arr[i]);
 }

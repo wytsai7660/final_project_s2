@@ -170,7 +170,7 @@ Map *new_Map(int r, int c) {
   if (r <= 0 || c <= 0) return NULL;
   Map *m = malloc(sizeof(Map));
   char **tmp = malloc((unsigned)r * sizeof(char *));
-  for (int i = 0; i < r; i++) tmp[i] = memset(malloc((unsigned)c * sizeof(char)), '@', (unsigned)c);
+  for (int i = 0; i < r; i++) tmp[i] = memset(malloc((unsigned)c * sizeof(char)), '@', (unsigned)c * sizeof(char));
   *m = (Map){tmp, r, c, (r * c - r - c - 1) / 2, 0};
   return m;
 }
@@ -189,13 +189,12 @@ typedef struct {
   int atk, def, crit, dir;
   int watchTowerCnt;
   IntPair pos;
-  int *backpack;
+  int backpack[ITEM_TYPES];
+  // item
+  // 0 teleport: randomly teleport to another place
+  // 1 blood++: use in battle, heal you life by 5
+  // 2 defense: use in battle, 90% chance ignore next monster's attack
 } PlayerData;
-
-// item
-// 0 teleport: randomly teleport to another place
-// 1 blood++: use in battle, heal you life by 5
-// 2 defense: use in battle, 90% chance ignore next monster's attack
 
 PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
@@ -215,19 +214,12 @@ PlayerData *new_PlayerData() {
   p->crit = 99;
   p->watchTowerCnt = 0;
 #endif
-  p->backpack = malloc(sizeof(int) * (sizeof(items_ratio) / sizeof(float)));  // currently 4 types of item
-  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 0;
-#ifdef DEBUG
-  for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) p->backpack[i] = 99;
-#endif
+  for (unsigned i = 0; i < ITEM_TYPES; i++) p->backpack[i] = 0;  // currently 4 types of item
   p->dir = 0;
   return p;
 }
 
-void PlayerData_clear(PlayerData *p) {
-  free(p->backpack);
-  free(p);
-}
+void PlayerData_clear(PlayerData *p) { free(p); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -270,12 +262,10 @@ Enemy *new_Enemy(PlayerData *p, int n_states) {
 }
 
 void Enemy_clear(Enemy *e) {
-  free(e->moveDistrube);
-  for(int i=0;i<e->n_states;i++) free(e->data[i]);
+  for (int i = 0; i < e->n_states; i++) free(e->data[i]);
   free(e->data);
   free(e);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
