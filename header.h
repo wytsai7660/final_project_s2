@@ -7,8 +7,10 @@
   #include <sys/ioctl.h>
   #include <termios.h>
   #include <unistd.h>
+  #include <fcntl.h>
 #elif _WIN32
   #define NOMINMAX
+  #include <conio.h>
   #include <windows.h>
 #endif
 
@@ -20,7 +22,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <termios.h>
 #include <time.h>
 
 #define RED "\e[31m"
@@ -106,6 +107,11 @@ int convert_move(char c) {
   return 0;                          // invalid input
 }
 
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +151,17 @@ const bool items_maze_usability[] = {true, false, false, true};
 // 2 Guardian Shield: use in battle, 90% chance ignore next monster's attack
 // 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
 
-// bool items_enabled[] = {false, false, false, false};
+clock_t start, end;
+double cpu_time_used;
+
+void one_tick(clock_t start, clock_t end) {
+  printf("\e[%d;%dH" HIDE_CURSOR, win_row - 1, 1);
+  // end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  printf("Time taken: %f seconds\n", cpu_time_used);
+  delay(0.03 - cpu_time_used*2);
+}
+
 // #define DEBUG
 
 #endif
