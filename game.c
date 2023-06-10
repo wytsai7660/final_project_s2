@@ -61,20 +61,38 @@ void chooseItem(PlayerData *p, Game *g) {
   int choice = 0;
   char ch;
   drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+  printf(HIDE_CURSOR);
 
-  while (ch = getchar())
+  while (true)
   {
-    if (ch == 'a') {
-      choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
-    } else if (ch == 'd') {
-      choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
-    } else if (ch == '\n') {
-      if(p->backpack[choice] && items_maze_usability[choice]) g->items_enabled[choice] = !g->items_enabled[choice];
-    } else if (ch == 'q') {
-      break;
+    start = clock();
+    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+    clearInputBuffer();
+
+    if (bytesRead == 1) 
+    {
+      if (ch == 'a') {
+            choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
+          } else if (ch == 'd') {
+            choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
+          } else if (ch == '\n') {
+            if(p->backpack[choice] && items_maze_usability[choice]) g->items_enabled[choice] = !g->items_enabled[choice];
+          } else if (ch == 'q') {
+            break;
+          } else {
+            end = clock();
+            one_tick(start, end);
+            continue;
+          }
+    }
+    else {
+      end = clock();
+      one_tick(start, end);
+      continue;
     }
 
     drawBackpack(p, g, choice, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+    printf(HIDE_CURSOR);
   }
 }
 
@@ -85,18 +103,20 @@ int main() {
   struct winsize w;
   ioctl(0, TIOCGWINSZ, &w);
   win_row = w.ws_row, win_col = w.ws_col;
+
+  // setting the cursor
+  struct termios term;
+  tcgetattr(STDIN_FILENO, &term);
+  term.c_lflag &= ~(ICANON | ECHO);
+  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 #elif _WIN32
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #endif
-
-  // setting the cursor
-  struct termios old_attr, new_attr;
-  tcgetattr(STDIN_FILENO, &old_attr);
-  new_attr = old_attr;
-  new_attr.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
 
   // variable init
   Map *map = new_Map(MAP_ROW, MAP_COL);
@@ -116,33 +136,44 @@ int main() {
   }
 
   //game loop
-  while(game->status == 2 && (ch = getchar())) {
+  while(game->status == 2) {
+    start = clock();
 
-    printf(HIDE_CURSOR);
-
-    switch (ch) {
-      case 'w':
-          printf(CLEAR);
-          player->dir = 2;
-          break;
-      case 'a':
-          printf(CLEAR);
-          player->dir = 1;
-          break;
-      case 's':
-          printf(CLEAR);
-          player->dir = 0;
-          break;
-      case 'd':
-          printf(CLEAR);
-          player->dir = 3;
-          break;
-      case 'e':
-          chooseItem(player, game);
-          printf(CLEAR);
-          break;
-      default:
-        continue;
+    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+    clearInputBuffer();
+    if(bytesRead == 1)
+    {
+      switch (ch) {
+        case 'w':
+            printf(CLEAR HIDE_CURSOR);
+            player->dir = 2;
+            break;
+        case 'a':
+            printf(CLEAR HIDE_CURSOR);
+            player->dir = 1;
+            break;
+        case 's':
+            printf(CLEAR HIDE_CURSOR);
+            player->dir = 0;
+            break;
+        case 'd':
+            printf(CLEAR HIDE_CURSOR);
+            player->dir = 3;
+            break;
+        case 'e':
+            chooseItem(player, game);
+            printf(CLEAR HIDE_CURSOR);
+            break;
+        default:
+          end = clock();
+          one_tick(start, end);
+          continue;
+      }
+    } 
+    else {
+      end = clock();
+      one_tick(start, end);
+      continue;
     }
 
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
@@ -180,13 +211,14 @@ int main() {
 
     drawMiniMap(map, &player->pos, smallMapSize, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
     drawStatusBar(player, win_col - MAP_AREA_WIDTH, win_row - 3, 3);
-    printf("\e[%d;%dH", win_row, 1);
-    // delay(0.03);
+
+    end = clock();
+    one_tick(start, end);
   }
 
   // free var
   PlayerData_clear(player);
   Game_clear(game);
   Map_clear(map);
-  tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }

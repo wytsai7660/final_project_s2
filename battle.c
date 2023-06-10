@@ -18,18 +18,19 @@ int main() {
   struct winsize w;
   ioctl(0, TIOCGWINSZ, &w);
   win_row = w.ws_row, win_col = w.ws_col;
+
+  struct termios term;
+  tcgetattr(STDIN_FILENO, &term);
+  term.c_lflag &= ~(ICANON | ECHO);
+  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 #elif _WIN32
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
 #endif
-
-  // setting the cursor
-  struct termios old_attr, new_attr;
-  tcgetattr(STDIN_FILENO, &old_attr);
-  new_attr = old_attr;
-  new_attr.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &new_attr);
 
   // variable init
   Map *map = new_Map(MAP_ROW, MAP_COL);
@@ -41,6 +42,7 @@ int main() {
   double cpu_time_used;
   char ch;
   int choice = 0, chosen = -1;
+  double fps;
   player->hp = player->hpMax;
 
   gen_maze(map);
@@ -53,37 +55,44 @@ int main() {
   }
 
   //game loop
-  while(ch = getchar()) {
+  while(game->status == 3) {
     
     start = clock();
-    printf(HIDE_CURSOR);
 
     //clearPanel();
+    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+    clearInputBuffer();
 
-    if(toupper(ch) == 'A') {
-      printf(CLEAR);
-      choice = (choice - 1 + 3)%3;
-    }
-    else if(toupper(ch) == 'D') {
-      printf(CLEAR);
-      choice = (choice + 1)%3;
-    }
-    else if(ch == '\n') {
-      printf(CLEAR);
-      chosen = choice;
-      continue;
-    }
-    else if(toupper(ch) == 'E') {
-      continue;
-    }
-    else {
+    if(bytesRead == 1) {
+      if(toupper(ch) == 'A') {
+        printf(CLEAR);
+        choice = (choice - 1 + 3)%3;
+      }
+      else if(toupper(ch) == 'D') {
+        printf(CLEAR);
+        choice = (choice + 1)%3;
+      }
+      else if(ch == '\n') {
+        printf(CLEAR);
+        chosen = choice;
+      }
+      else if(toupper(ch) == 'E') {
+        clearPanel();
+      } else {
+        end = clock();
+        one_tick(start, end);
+        continue;
+      }
+    } else {
+      end = clock();
+      one_tick(start, end);
       continue;
     }
 
-    drawSolidBox(13, 25, 9, win_col / 4);
+    drawSolidBox(13, 25, 0, 9, win_col / 4);
     printf("\e[%d;%dH", 9 + 14, win_col / 4 - 12);
     drawHp(player->hp, player->hpMax);
-    drawSolidBox(13, 25, 5, win_col / 4 * 3);
+    drawSolidBox(13, 25, 0, 5, win_col / 4 * 3);
     printf("\e[%d;%dH", 5 + 14, win_col / 4 * 3 - 12);
     drawHp(enemy->hp, enemy->hpMax);
 
@@ -96,19 +105,16 @@ int main() {
     if(chosen != -1) {
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 4, 3);
       printf("You threw %s and enemy threw ***, you win!", moves[chosen]);
+      chosen = -1;
     }
 
-
-    printf("\e[%d;%dH", win_row - 1, 1);
     end = clock();
-    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
-    printf("Time taken: %f seconds\n", cpu_time_used);
-    // delay(0.03);
+    one_tick(start, end);
   }
 
   // free var
   PlayerData_clear(player);
   Game_clear(game);
   Map_clear(map);
-  tcsetattr(STDIN_FILENO, TCSANOW, &old_attr);
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
 }

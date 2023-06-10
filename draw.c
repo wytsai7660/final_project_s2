@@ -24,11 +24,11 @@ void drawBox(int height, int width, int y, int x) {
 }
 
 // coordinate on center
-void drawSolidBox(int height, int width, int y, int x) {
+void drawSolidBox(int height, int width, int tick, int y, int x) {
     for(int i=0;i<height;i++) {
       printf("\e[%d;%dH", y + i, x - width / 2);
       for(int j=0;j<width;j++) {
-        printf("%c", j%2 ? ' ' : '@');
+        printf("%c", j%2 + tick%2 ? ' ' : '@');
       }
       printf("\n");
     }
