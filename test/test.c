@@ -14,6 +14,7 @@ int main() {
   swap(&c, &d, 1);
   float f = -1.f / 0.f;
   printf("%f, isinf=%d, isnan=%d, isnormal=%d\n", f, isinf(f), isnan(f), isnormal(f));
-  int arr[ITEM_TYPES] = {};
-  for (int i = 0; i < ITEM_TYPES; i++) printf("%d ", arr[i]);
+  // int arr[ITEM_TYPES] = {};
+  // for (int i = 0; i < ITEM_TYPES; i++) printf("%d ", arr[i]);
+  // int arr[3] = {1, 2, 3}, des[3];
 }

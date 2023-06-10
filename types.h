@@ -225,40 +225,33 @@ void PlayerData_clear(PlayerData *p) { free(p); }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-    float **data;
-    int n_states; // TODO not yet being used, will remove it some time
-    int atk;
-    int def;
-    int hp;
-    int hpMax;
-    int crit;
-    float *moveDistrube;
-    int PlayerMove;
-    int EnemyMove;
-}Enemy;
+  float **data;  // TODO not yet being used, will remove it some time
+  int n_states;  // TODO not yet being used, will remove it some time
+  int atk;
+  int def;
+  int hp;
+  int hpMax;
+  int crit;
+  float move_ratio[3];
+} Enemy;
 
 Enemy *new_Enemy(PlayerData *p, int n_states) {
-    if(n_states < 2) return NULL;
-    Enemy *e = malloc(sizeof(Enemy));
+  if (n_states < 2) return NULL;
+  Enemy *e = malloc(sizeof(Enemy));
 
-    float sum = 0;
-    // prob of paper, sccisor, stone
-    float *moveDistrube = malloc(sizeof(float) * 3);
-    for(int i = 0;i < 3;i++){
-        moveDistrube[i] = (float)rand() / RAND_MAX;
-        sum += moveDistrube[i];
-    }
+  float **tmp = malloc((unsigned)n_states * sizeof(float *));
+  for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc((unsigned)n_states * sizeof(float)), 0, (unsigned)n_states * sizeof(float));
+  int hp = p->hpMax - 5 + rand_between(0, 10);
 
-    // normalize the numbers to sum up to 1
-    for(int i = 0;i < 3;i++){
-        moveDistrube[i] /= sum;
-    }
+  *e = (Enemy){tmp, n_states, rand_between(p->hp / 10 + 1, p->hp / 3 + 1), rand_between(p->atk / 10 + 1, p->atk / 2 + 1), hp, hp, rand_between(0, 10)};
 
-    float **tmp = malloc(n_states * sizeof(float *));
-    for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc(n_states * sizeof(float)), 0, n_states);
-    int hp = p->hpMax - 5 + rand_between(0, 10);
-    *e = (Enemy){tmp, n_states, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), hp, hp, rand_between(0, 10), moveDistrube};
-    return e;
+  // prob of paper, sccisor, stone
+  // TODO maybe switch to a better way to generate the ratio
+  float sum = 0;
+  for (int i = 0; i < 3; i++) e->move_ratio[i] = (float)rand() / (float)RAND_MAX, sum += e->move_ratio[i];
+  for (int i = 0; i < 3; i++) e->move_ratio[i] /= sum;  // normalize to make the sum = 1
+
+  return e;
 }
 
 void Enemy_clear(Enemy *e) {

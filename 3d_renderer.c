@@ -1,9 +1,14 @@
 #include "header.h"
 #include "types.h"
 
-bool sign_of_tan(float angle) { return (int)(angle / PI_2) & 1; }  // FIXME not using, should be removed or used
-
 // #define DEBUG
+
+// int luminance_index(float normal[3], float light_vector[3]) { return -(normal[0] * light_vector[0] + normal[1] * light_vector[1] + normal[2] * light_vector[2]) * 11.25f * powf(powf(light_vector[0], 2.f) + powf(light_vector[1], 2.f) + powf(light_vector[2], 2.f), -.5f); }
+int luminance_index(float normal[], float x, float y, float z) {
+  return 50;
+  // printf("%d\n", (int)(-(normal[0] * x + normal[1] * y + normal[2] * z) * 11.25 * powf(powf(x, 2) + powf(y, 2) + powf(z, 2), -0.5)));
+  // return (int)(-(normal[0] * x + normal[1] * y + normal[2] * z) * 11.25 * powf(powf(x, 2) + powf(y, 2) + powf(z, 2), -0.5));
+}
 
 int round_upper(float f) {  // default
   if (isinf(f)) {
@@ -86,17 +91,22 @@ void scan(Map map, FloatPair pos, float dir) {
         //              |                                     |
         //              |                                    \|/ Z(h)
         //                                                    '
-
+        // printf("%d %d\n", row, col);
         if (!float_equal((float)row, pos.second)) {
-          for (float r = (float)row - .5f; r <= (float)row + .5f; r += render_spacing) {  // TODO change to dinamic spacing
-            for (float h = -0.5; h <= 0.5; h += render_spacing) {
-              ////////////////////////////
-              // zb = 1 / sqrt(pow(x, 2) + pow(z, 2)),                           //
-              //     xp = (int)((float)col / 2 + x * scaling_factor / z + 0.5),  //
-              //     yp = (int)((float)row / 2 + (y * scaling_factor / z) / 2 + 0.5);
-              // // printf("(%6.3f, %6.3f, %6.3f) -> (%2d, %2d)\t%f\n", x, y, z, xp, yp, luminance(normal, x, y, z, zb));
-              // // printf("%f %f %f (%d, %d)\n", x, y, z, xp, yp);
-              // if ((xp >= 0 && xp < col) && (yp >= 0 && yp < row) && zb > zbuffer[xp][yp]) zbuffer[xp][yp] = zb, output[xp][yp] = ".,-~:;=!*#$@"[(int)luminance(normal, x, y, z)];
+          printf("print the %c side of block r/c = (%d, %d)", row > pos.second ? 'l' : 'r', row, col);
+          for (float z = (float)col - .5f - pos.first, x = row > pos.second ? row - .5f - pos.second : row + .5f - pos.second, normal[] = {0, 0, 1}; z <= (float)col + .5f - pos.first; z += render_spacing) {  // TODO change to dinamic spacing
+            for (float y = -wall_height_2; y <= wall_height_2; y += render_spacing) {
+              float zb = sqrt(pow(x, 2) + pow(z, 2));
+              int win_x = round_upper((float)win_col / 2 + x * scaling_factor / z + 0.5),        //
+                  win_y = round_upper((float)win_row / 2 + (y * scaling_factor / z) / 2 + 0.5);  //
+
+              // printf("zb = %f, win_x = %d, win_y = %d\n", zb, win_x, win_y);
+
+              if ((win_y >= 0 && win_y < win_row) &&  //
+                  (win_x >= 0 && win_x < win_col) &&  //
+                  zb > z_buffer[win_y][win_x]         //
+              )
+                z_buffer[win_y][win_x] = zb, display[win_y][win_x] = grayscale[luminance_index(normal, x, y, z)];  //(int)luminance(normal, x, y, z)];
             }
           }
         }
@@ -124,13 +134,40 @@ void scan(Map map, FloatPair pos, float dir) {
   for (int i = 0; i < map.row; i++) free(sight[i]);
   free(sight);
 #endif
+
+  for (int i = 0; i < win_row; i++) {
+    for (int j = 0; j < win_col; j++) printf("%c ", display[i][j]);
+    printf("\n");
+  }
+  for (int i = 0; i < win_row; i++) {
+    free(display[i]);
+    free(z_buffer[i]);
+  }
+  free(display);
+  free(z_buffer);
 }
 
 int main() {
+#ifdef __linux__
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
+  win_row = w.ws_row, win_col = w.ws_col;
+#elif _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#endif
+  printf("win_row = %d, win_col = %d\n", win_row, win_col);
+  delay(1.f);
+
   int ii;
   //   float max_dir = 4 * PI;
   Map *map = new_Map(11, 17);
+  for (int i = 0; i < map->row; i++) memset(map->data[i], '9', (unsigned)map->col);
+  map->data[6][8] = '@';
+
   float dir;
+#ifdef DEBUG
   for (int i = 0; i < 10; i++) printf("\n");
   for (dir = 0.f; dir <= 12.f / 3.f; dir += rotate_spacing) {
     printf("\n\n\nCalling scan() with angle = %f * PI/2 => %f\n\n", dir, dir * PI_2);
@@ -138,7 +175,9 @@ int main() {
     delay(1.f);
     // printf("\e[1;1H\e[2J");
   }
-
+#else
+  scan(*map, make_FloatPair(8.f, 5.f), 0);
+#endif
   //   new_tan(0, -5.f / 2.f * PI);
   //   printf("%g", 1.f / tanf(PI / 2));
   Map_clear(map);
