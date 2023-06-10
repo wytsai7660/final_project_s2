@@ -1,7 +1,7 @@
 #include "header.h"
 #include "types.h"
 
-// for testing
+// for testing, do not delete
 
 #define ROWS 11
 #define COLS 21
