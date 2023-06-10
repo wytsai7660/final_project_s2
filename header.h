@@ -4,10 +4,10 @@
 #define _POSIX_C_SOURCE 199309L
 
 #ifdef __linux__
+  #include <fcntl.h>
   #include <sys/ioctl.h>
   #include <termios.h>
   #include <unistd.h>
-  #include <fcntl.h>
 #elif _WIN32
   #define NOMINMAX
   #include <conio.h>
@@ -37,6 +37,7 @@
 #define CLEAR "\e[1;1H\e[2J"
 #define HIDE_CURSOR "\e[?25l"
 #define SHOW_CURSOR "\e[?25h"
+#define MOVE_TO(r, c) "\e["(r) ";"(c) "H"  // TODO test it and switch to it
 
 #define PI 3.14159265358979323846f
 #define PI_2 1.57079632679489661923f
@@ -108,8 +109,9 @@ int convert_move(char c) {
 }
 
 void clearInputBuffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
+  int c;
+  while ((c = getchar()) != '\n' && c != EOF)
+    ;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -127,8 +129,8 @@ const float scaling_factor = 30;
 const float render_spacing = 0.001f;
 const float wall_height_2 = .5f;
 const float rotate_spacing = 1.f / 6.f;
-const char grayscale[] = ".,-~:;=!*#$@";  // 12 chars
-
+const char grayscale[] = ".'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";  // 69 chars
+// ".,-~:;=!*#$@";  // 12 chars
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.15f, 0.4f};
 // 0  +HP
 // 1  -HP
@@ -152,14 +154,14 @@ const bool items_maze_usability[] = {true, false, false, true};
 // 3 Magic Compass: Activate to reveal the location of hidden treasures or secret paths in the game world.
 
 clock_t start, end;
-double cpu_time_used;
+float cpu_time_used;
 
 void one_tick(clock_t start, clock_t end) {
   printf("\e[%d;%dH" HIDE_CURSOR, win_row - 1, 1);
   // end = clock();
-  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  cpu_time_used = ((float)(end - start)) / CLOCKS_PER_SEC;
   printf("Time taken: %f seconds\n", cpu_time_used);
-  delay(0.03 - cpu_time_used*2);
+  delay(.03f - cpu_time_used * 2);
 }
 
 // #define DEBUG
