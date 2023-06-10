@@ -48,7 +48,7 @@ int resolve(int lastPlayerMove, int lastEnemyMove) {
         // 出跟上次一樣的
     }
     else if(policy == 4) {
-        rand_between(0, 2);
+        enemyNextMove = rand_between(0, 2);
     }
 
     return enemyNextMove;

@@ -3,7 +3,7 @@
 #include "draw.c"
 #include "map.c"
 
-const char *moves[] = {"Paper", "Scissor", "Stone"};
+char *moves[] = {"Paper", "Scissor", "Stone"};
 
 void clearPanel() {
 	for(int i= win_row - TEXT_AREA_HEIGHT;i< win_row; i++){
@@ -34,10 +34,14 @@ int main() {
   // variable init
   Map *map = new_Map(MAP_ROW, MAP_COL);
   PlayerData *player = new_PlayerData();
+  Enemy *enemy = new_Enemy(player, 5);
   Game *game = new_Game();
+  game->status = 3;
+  clock_t start, end;
+  double cpu_time_used;
   char ch;
-  const int smallMapSize = 7;
-  game->status = 2;
+  int choice = 0, chosen = -1;
+  player->hp = player->hpMax;
 
   gen_maze(map);
   for (int i = 0; i < map->row; i++) {
@@ -50,18 +54,56 @@ int main() {
 
   //game loop
   while(ch = getchar()) {
-
+    
+    start = clock();
     printf(HIDE_CURSOR);
 
-    clearPanel();
+    //clearPanel();
+
+    if(toupper(ch) == 'A') {
+      printf(CLEAR);
+      choice = (choice - 1 + 3)%3;
+    }
+    else if(toupper(ch) == 'D') {
+      printf(CLEAR);
+      choice = (choice + 1)%3;
+    }
+    else if(ch == '\n') {
+      printf(CLEAR);
+      chosen = choice;
+      continue;
+    }
+    else if(toupper(ch) == 'E') {
+      continue;
+    }
+    else {
+      continue;
+    }
+
+    drawSolidBox(13, 25, 9, win_col / 4);
+    printf("\e[%d;%dH", 9 + 14, win_col / 4 - 12);
+    drawHp(player->hp, player->hpMax);
+    drawSolidBox(13, 25, 5, win_col / 4 * 3);
+    printf("\e[%d;%dH", 5 + 14, win_col / 4 * 3 - 12);
+    drawHp(enemy->hp, enemy->hpMax);
 
 
-    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, 1);
-    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 1);
-    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 1, 3);
+    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
+    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
     printf("[A][D] To Select   [ENTER] To Choose   [E] To Open Backpack");
-    printf("\e[%d;%dH", win_row, 1);
-    delay(0.03);
+    drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 2, 3);
+    if(chosen != -1) {
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 4, 3);
+      printf("You threw %s and enemy threw ***, you win!", moves[chosen]);
+    }
+
+
+    printf("\e[%d;%dH", win_row - 1, 1);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    printf("Time taken: %f seconds\n", cpu_time_used);
+    // delay(0.03);
   }
 
   // free var

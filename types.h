@@ -238,6 +238,7 @@ typedef struct {
     int atk;
     int def;
     int hp;
+    int hpMax;
     int crit;
     float *moveDistrube;
     int PlayerMove;
@@ -263,7 +264,8 @@ Enemy *new_Enemy(PlayerData *p, int n_states) {
 
     float **tmp = malloc(n_states * sizeof(float *));
     for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc(n_states * sizeof(float)), 0, n_states);
-    *e = (Enemy){tmp, n_states, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), rand_between(5, 10), rand_between(0, 10), moveDistrube};
+    int hp = p->hpMax - 5 + rand_between(0, 10);
+    *e = (Enemy){tmp, n_states, rand_between(p->hp/10 + 1, p->hp/3 + 1), rand_between(p->atk/10 + 1, p->atk/2 + 1), hp, hp, rand_between(0, 10), moveDistrube};
     return e;
 }
 

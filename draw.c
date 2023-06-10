@@ -23,8 +23,18 @@ void drawBox(int height, int width, int y, int x) {
     printf("\u2518\n");
 }
 
-void drawHp(int hp, int hpMax, int y, int x) {
-    // printf("\e[%d;%dH", y, x);
+// coordinate on center
+void drawSolidBox(int height, int width, int y, int x) {
+    for(int i=0;i<height;i++) {
+      printf("\e[%d;%dH", y + i, x - width / 2);
+      for(int j=0;j<width;j++) {
+        printf("%c", j%2 ? ' ' : '@');
+      }
+      printf("\n");
+    }
+}
+
+void drawHp(int hp, int hpMax) {
 
     printf("HP: |");
     if((float)hp < hpMax*0.3) {
@@ -42,20 +52,17 @@ void drawHp(int hp, int hpMax, int y, int x) {
             printf(" ");
     }
 
-    printf("\033[0m|");
+    printf("\033[0m|\n");
 }
 
-void drawChoice(int choice, int y, int x) {
+void drawChoice(char *option[], int choice, int y, int x) {
     printf("\e[%d;%dH", y, x);
     for(int i=0; i<3; i++) {
-        if(i == choice) {
-            printf(ALT "%s\n" RESET, charArray[i]);
-        } else {
-            printf("%s\n", charArray[i]);
-        }
-        y++;
-        printf("\e[%d;%dH", y, x);
+        if (i == choice) printf(ALT);
+        printf("%s", option[i]);
+        printf(RESET  "   ");
     }
+    printf("\n");
 }
 
 void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
@@ -77,7 +84,7 @@ void drawStatusBar(PlayerData *p, int panelWidth, int y, int x) {
 
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
-    drawHp(p->hp, p->hp, 0, 0);
+    drawHp(p->hpMax, p->hpMax);
 }
 
 void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {

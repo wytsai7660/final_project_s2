@@ -21,7 +21,7 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '1':
         printf("you loose hp!");
-        p->hp = max(p->hpMax-1, 1);
+        p->hpMax = max(p->hpMax-1, 1);
         break;
     case '2':
         printf("you gain atk!");
@@ -116,7 +116,7 @@ int main() {
   }
 
   //game loop
-  while(ch = getchar()) {
+  while(game->status == 2 && (ch = getchar())) {
 
     printf(HIDE_CURSOR);
 
