@@ -3,6 +3,7 @@
 #include "header.h"
 #include "map.c"
 #include "types.h"
+#include "animation.c"
 
 
 void clearPanel() {
@@ -13,10 +14,13 @@ void clearPanel() {
 
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
+  Animation *cat = new_Animation("assets/cat.txt");
+  if(cat == NULL) return;
+
   game->playerOldMoves = rand_between(0, 2);
   game->enemyOldMoves = rand_between(0, 2);
   char ch;
-  int choice = 0, chosen = -1, result;
+  int choice = 0, chosen = -1, result, current_tick;
   player->hp = player->max_hp;
 
   while (game->status == 3) {
@@ -46,11 +50,20 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       updateAnimationOnly = true;
     }
 
-    drawSolidBox(13, 25, tick / 30 % 3, 9, win_col / 4);
-    printf("\e[%d;%dH", 9 + 14, win_col / 4 - 12);
+    if(result == 1 && game->input_locked) {
+      animateHit(cat, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (cat->col/2));
+    } else {
+      drawAnimation(cat, 0, 9, (win_col / 4) - (cat->col/2));
+    }
+    printf("\e[%d;%dH", 9 + cat->row, (win_col / 4) - (cat->col/2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
-    drawSolidBox(13, 25, tick / 30 % 3, 5, win_col / 4 * 3);
-    printf("\e[%d;%dH", 5 + 14, win_col / 4 * 3 - 12);
+
+    if(result == 2 && game->input_locked) {
+      animateHit(cat, (tick - current_tick), &(game->input_locked), 5, (win_col / 4 * 3) - (cat->col/2));
+    } else {
+      drawAnimation(cat, 0, 5, (win_col / 4 * 3) - (cat->col/2));
+    }
+    printf("\e[%d;%dH", 5 + cat->row, (win_col / 4 * 3) - (cat->col/2));
     drawHp(enemy->hp, enemy->max_hp, false);
 
     if (updateAnimationOnly) {
@@ -86,6 +99,11 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 5, 3);
       printf("You threw %s and enemy threw %s, %s!", moves[chosen], moves[enemyMove], gameResults[result]);
 
+      if(result != 0) {
+        game->input_locked = true;
+        current_tick = tick + 1;
+      }
+
       if (enemy->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you beat the enemy!");
@@ -120,5 +138,5 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if(player->life <= 0) {
       game->status = 9;
     }
-
+  Enemy_clear(enemy);
 }

@@ -71,42 +71,48 @@ void spawnBoss(Map *m) {
 
 void mapLoop(Game *game, PlayerData *player, Map *map) {
   char ch;
+  bool updateAnimationOnly;
+  game->input_locked = false;
 
   while(game->status == 2) {
     start = clock();
 
+    updateAnimationOnly = false;
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
-    if(bytesRead == 1)
+    if(bytesRead == 1 && !game->input_locked)
     {
-      switch (ch) {
-        case 'w':
+      switch (toupper(ch)) {
+        case 'W':
             printf(CLEAR HIDE_CURSOR);
-            player->dir = 2;
             break;
-        case 'a':
+        case 'A':
             printf(CLEAR HIDE_CURSOR);
-            player->dir = 1;
+            player->dir = (player->dir + 1) % 4;
             break;
-        case 's':
+        case 'D':
             printf(CLEAR HIDE_CURSOR);
-            player->dir = 0;
+            player->dir = (player->dir - 1 + 4) % 4;
             break;
-        case 'd':
-            printf(CLEAR HIDE_CURSOR);
-            player->dir = 3;
-            break;
-        case 'e':
+        case 'E':
             chooseItem(player, game);
             printf(CLEAR HIDE_CURSOR);
             break;
         default:
-          end = clock();
-          one_tick(start, end);
-          continue;
+          updateAnimationOnly = true;
       }
     } 
     else {
+      updateAnimationOnly = true;
+    }
+
+    // update 3d_renderer
+    // if(game->input_locked) {
+    //   render(player->pos, map);
+    // }
+
+
+    if(updateAnimationOnly) {
       end = clock();
       one_tick(start, end);
       continue;
@@ -117,7 +123,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
     printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
 
-    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && ch != 'e')
+    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && toupper(ch) == 'W')
     {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       player->pos.first += direction[player->dir][0];
@@ -125,6 +131,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
       game->round++;
       if(game->round == 35) spawnBoss(map);
+      // game->input_locked = true;
     }
 
     if(game->items_enabled[0]) {

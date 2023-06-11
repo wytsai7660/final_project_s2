@@ -296,7 +296,7 @@ Animation *new_Animation(const char *filename) {  // FIXME const
       if (fgets(ani->data[i][j], ani->col + 1, file) == NULL) printf("%s: file is incomplete! can't fix now, plz clear it\n", filename);
       else ani->data[i][j][strcspn(ani->data[i][j], "\n")] = '\0';  // remove trailing newline
 #ifdef DEBUG
-      printf("frame: %d, line: %d, newline: %d\ncontent: %s\n", i, j, newline, ani->data[i][j]);
+      printf("frame: %-3d line: %-3d content: %s\n", i, j, ani->data[i][j]);
 #endif
     }
   }
