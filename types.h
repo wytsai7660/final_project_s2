@@ -271,8 +271,9 @@ typedef struct {
   int col;
   char ***data;
 } Animation;
+/// @note test on null pointer is not sufficient to indicate that the animation is loaded correctly (important)
 
-Animation *new_animation(const char *filename) {
+Animation *new_Animation(const char *filename) {  // FIXME const
   FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     printf("Failed to open file: %s\n", filename);
@@ -280,31 +281,31 @@ Animation *new_animation(const char *filename) {
   }
 
   Animation *ani = malloc(sizeof(Animation));
-  fscanf(file, "%d", &(ani->frames));
-  fscanf(file, "%d", &(ani->row));
-  fscanf(file, "%d", &(ani->col));
-  fgetc(file);
-
-  // allocate memory & read from file
-  ani->data = malloc(ani->frames * sizeof(char **));
-  for (int i = 0; i < ani->frames; i++) {
-    ani->data[i] = malloc(ani->row * sizeof(char *));
-    for (int j = 0; j < ani->row; j++) {
-      ani->data[i][j] = malloc((ani->col + 1) * sizeof(char));  // +1 for null terminator
-      fgets(ani->data[i][j], ani->col + 1, file);
-      int newline = strcspn(ani->data[i][j], "\n");
-#ifdef DEBUG
-      printf("frame: %d, line: %d, newline: %d\ncontent: %s\n",i, j,  newline, ani->data[i][j]);
-#endif
-      ani->data[i][j][newline] = '\0';  // remove trailing newline
-    }
+  if (fscanf(file, "%d", &(ani->frames)) == EOF || fscanf(file, "%d", &(ani->row)) == EOF || fscanf(file, "%d", &(ani->col)) == EOF || fgetc(file) != '\n') {
+    printf("%s: file is incomplete!\n", filename);
+    free(ani);
+    return NULL;
   }
 
+  // allocate memory & read from file
+  ani->data = malloc((unsigned)ani->frames * sizeof(char **));
+  for (int i = 0; i < ani->frames; i++) {
+    ani->data[i] = malloc((unsigned)ani->row * sizeof(char *));
+    for (int j = 0; j < ani->row; j++) {
+      ani->data[i][j] = malloc((unsigned)(ani->col + 1) * sizeof(char));  // +1 for null terminator
+      if (fgets(ani->data[i][j], ani->col + 1, file) == NULL) printf("%s: file is incomplete! can't fix now, plz clear it\n", filename);
+      else ani->data[i][j][strcspn(ani->data[i][j], "\n")] = '\0';  // remove trailing newline
+#ifdef DEBUG
+      printf("frame: %d, line: %d, newline: %d\ncontent: %s\n", i, j, newline, ani->data[i][j]);
+#endif
+    }
+  }
   fclose(file);
   return ani;
 }
 
-void animation_clear(Animation *ani) {
+void Animation_clear(Animation *ani) {
+  if (ani == NULL) return;
   for (int i = 0; i < ani->frames; i++) {
     for (int j = 0; j < ani->row; j++) {
       free(ani->data[i][j]);
@@ -314,7 +315,6 @@ void animation_clear(Animation *ani) {
   free(ani->data);
   free(ani);
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
