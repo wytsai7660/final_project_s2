@@ -185,7 +185,7 @@ void Map_clear(Map *m) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  int life, hp, hpMax;
+  int life, hp, max_hp;
   int atk, def, crit, dir;
   int watchTowerCnt;
   IntPair pos;
@@ -200,7 +200,7 @@ PlayerData *new_PlayerData() {
   PlayerData *p = malloc(sizeof(PlayerData));
   p->life = 5;
   p->hp = 10;
-  p->hpMax = 10;
+  p->max_hp = 10;
   p->atk = 3;
   p->def = 3;
   p->crit = 10;
@@ -208,7 +208,7 @@ PlayerData *new_PlayerData() {
 #ifdef DEBUG
   p->life = 99;
   p->hp = 15;
-  p->hpMax = 15;
+  p->max_hp = 15;
   p->atk = 999;
   p->def = 999;
   p->crit = 99;
@@ -228,27 +228,26 @@ void PlayerData_clear(PlayerData *p) { free(p); }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  float **data;  // TODO not yet being used, will remove it some time
-  int n_states;  // TODO not yet being used, will remove it some time
-  int bossState;
+  int boss_state;  // TODO decide boss states
+  // 0 not boss
+  // 1
+  // 2
   int atk;
   int def;
   int hp;
-  int hpMax;
+  int max_hp;
   int crit;
   float move_ratio[3];
 } Enemy;
 
-Enemy *new_Enemy(PlayerData *p, int n_states) {
-  if (n_states < 2) return NULL;
+Enemy *new_Enemy(PlayerData *p, bool boss) {
   Enemy *e = malloc(sizeof(Enemy));
-
-  float **tmp = malloc((unsigned)n_states * sizeof(float *));
-  for (int i = 0; i < n_states; i++) tmp[i] = memset(malloc((unsigned)n_states * sizeof(float)), 0, (unsigned)n_states * sizeof(float));
-  int hp = p->hpMax - 5 + rand_between(0, 10);
-
-  *e = (Enemy){tmp, n_states, rand_between(p->hp / 10 + 1, p->hp / 3 + 1), rand_between(p->atk / 10 + 1, p->atk / 2 + 1), hp, hp, rand_between(0, 10)};
-
+  e->boss_state = boss;
+  e->atk = rand_between(p->hp / 10 + 1, p->hp / 3 + 1);
+  e->def = rand_between(p->atk / 10 + 1, p->atk / 2 + 1);
+  e->hp = p->max_hp + rand_between(-5, 5);
+  e->max_hp = e->hp;
+  e->crit = rand_between(0, 10);
   // prob of paper, sccisor, stone
   // TODO maybe switch to a better way to generate the ratio
   float sum = 0;
@@ -258,11 +257,7 @@ Enemy *new_Enemy(PlayerData *p, int n_states) {
   return e;
 }
 
-void Enemy_clear(Enemy *e) {
-  for (int i = 0; i < e->n_states; i++) free(e->data[i]);
-  free(e->data);
-  free(e);
-}
+void Enemy_clear(Enemy *e) { free(e); }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

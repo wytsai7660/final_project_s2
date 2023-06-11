@@ -1,9 +1,8 @@
-#include "header.h"
-#include "types.h"
 #include "draw.c"
-#include "map.c"
 #include "enemy.c"
-
+#include "header.h"
+#include "map.c"
+#include "types.h"
 
 void chooseItem(PlayerData *p, Game *g) {
   int choice = 0;
@@ -11,31 +10,28 @@ void chooseItem(PlayerData *p, Game *g) {
   drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
   printf(HIDE_CURSOR);
 
-  while (true)
-  {
+  while (true) {
     start = clock();
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
 
-    if (bytesRead == 1) 
-    {
+    if (bytesRead == 1) {
       if (ch == 'a') {
-            choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
-          } else if (ch == 'd') {
-            choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
-          } else if (ch == '\n') {
-            if(p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
-              g->items_enabled[choice] = !g->items_enabled[choice];
-            }
-          } else if (ch == 'q') {
-            break;
-          } else {
-            end = clock();
-            one_tick(start, end);
-            continue;
-          }
-    }
-    else {
+        choice = (choice - 1 + sizeof(items_ratio) / sizeof(float)) % (sizeof(items_ratio) / sizeof(float));
+      } else if (ch == 'd') {
+        choice = (choice + 1) % (sizeof(items_ratio) / sizeof(float));
+      } else if (ch == '\n') {
+        if (p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
+          g->items_enabled[choice] = !g->items_enabled[choice];
+        }
+      } else if (ch == 'q') {
+        break;
+      } else {
+        end = clock();
+        one_tick(start, end);
+        continue;
+      }
+    } else {
       end = clock();
       one_tick(start, end);
       continue;
@@ -47,9 +43,9 @@ void chooseItem(PlayerData *p, Game *g) {
 }
 
 void clearPanel() {
-	for(int i= win_row - TEXT_AREA_HEIGHT;i< win_row; i++){
-		printf("\e[K\e[B");
-	}
+  for (int i = win_row - TEXT_AREA_HEIGHT; i < win_row; i++) {
+    printf("\e[K\e[B");
+  }
 }
 
 int main() {
@@ -63,8 +59,8 @@ int main() {
   struct termios term;
   tcgetattr(STDIN_FILENO, &term);
   term.c_lflag &= ~(ICANON | ECHO);
-  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
-  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  term.c_cc[VTIME] = 0;  // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1;   // Wait for at least 1 character before reading
   tcsetattr(STDIN_FILENO, TCSANOW, &term);
   fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 #elif _WIN32
@@ -83,7 +79,7 @@ int main() {
   game->enemyOldMoves = rand_between(0, 2);
   char ch;
   int choice = 0, chosen = -1;
-  player->hp = player->hpMax;
+  player->hp = player->max_hp;
 
   gen_maze(map);
   for (int i = 0; i < map->row; i++) {
@@ -94,29 +90,25 @@ int main() {
     }
   }
 
-  //game loop
-  while(game->status == 3) {
-    
+  // game loop
+  while (game->status == 3) {
     start = clock();
 
     bool updateAnimationOnly = false;
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
 
-    if(bytesRead == 1) {
-      if(toupper(ch) == 'A') {
+    if (bytesRead == 1) {
+      if (toupper(ch) == 'A') {
         printf(CLEAR);
-        choice = (choice - 1 + 3)%3;
-      }
-      else if(toupper(ch) == 'D') {
+        choice = (choice - 1 + 3) % 3;
+      } else if (toupper(ch) == 'D') {
         printf(CLEAR);
-        choice = (choice + 1)%3;
-      }
-      else if(ch == '\n') {
+        choice = (choice + 1) % 3;
+      } else if (ch == '\n') {
         printf(CLEAR);
         chosen = choice;
-      }
-      else if(toupper(ch) == 'E') {
+      } else if (toupper(ch) == 'E') {
         chooseItem(player, game);
         printf(CLEAR);
       } else {
@@ -126,19 +118,18 @@ int main() {
       updateAnimationOnly = true;
     }
 
-    drawSolidBox(13, 25, tick/30%3, 9, win_col / 4);
+    drawSolidBox(13, 25, tick / 30 % 3, 9, win_col / 4);
     printf("\e[%d;%dH", 9 + 14, win_col / 4 - 12);
-    drawHp(player->hp, player->hpMax);
-    drawSolidBox(13, 25, tick/30%3, 5, win_col / 4 * 3);
+    drawHp(player->hp, player->max_hp);
+    drawSolidBox(13, 25, tick / 30 % 3, 5, win_col / 4 * 3);
     printf("\e[%d;%dH", 5 + 14, win_col / 4 * 3 - 12);
-    drawHp(enemy->hp, enemy->hpMax);
+    drawHp(enemy->hp, enemy->max_hp);
 
-    if(updateAnimationOnly) {
+    if (updateAnimationOnly) {
       end = clock();
       one_tick(start, end);
       continue;
     }
-
 
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
     drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
@@ -147,20 +138,20 @@ int main() {
     printf("[A][D] To Select   [ENTER] To Choose   [E] To Open Backpack");
     drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 2, 3);
 
-    if(chosen != -1) {
+    if (chosen != -1) {
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 4, 3);
       int enemyMove = enemyNextMove(game->playerOldMoves, game->enemyOldMoves);
       int result = solveDamage(player, enemy, game, chosen, enemyMove);
       printf("damage: %f\n", game->damage);
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 5, 3);
       printf("You threw %s and enemy threw %s, %s!", moves[chosen], moves[enemyMove], gameResults[result]);
-      
-      if(enemy->hp <= 0) {
+
+      if (enemy->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you beat the enemy!");
         game->status = 2;
       }
-      if(player->hp <= 0) {
+      if (player->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you loose!");
         player->life--;

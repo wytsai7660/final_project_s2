@@ -65,19 +65,19 @@ void drawAnimation(Animation *ani, int frame, int type, int y, int x) {
 }
 
 
-void drawHp(int hp, int hpMax) {
-    if(hp < 0 || hpMax <= 0) return;
+void drawHp(int hp, int max_hp) {
+    if(hp < 0 || max_hp <= 0) return;
 
     printf("HP: |");
-    if((float)hp < hpMax*0.3) {
+    if((float)hp < max_hp*0.3) {
         printf("\e[7;31m");
-    } else if((float)hp <= hpMax*0.5) {
+    } else if((float)hp <= max_hp*0.5) {
         printf("\e[7;33m");
     } else {
         printf("\e[7;32m");
     }
 
-    for(int i=0;i<hpMax;i++){
+    for(int i=0;i<max_hp;i++){
         if(hp == i) {
             printf("\033[0m");
         }
@@ -116,7 +116,7 @@ void drawStatusBar(PlayerData *p, bool printHp, int y, int x) {
 
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
-    if(printHp) drawHp(p->hpMax, p->hpMax);
+    if(printHp) drawHp(p->max_hp, p->max_hp);
 }
 
 void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {

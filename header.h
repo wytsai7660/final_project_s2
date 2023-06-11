@@ -155,7 +155,7 @@ const bool items_maze_usability[] = {true, false, false, true};
 
 clock_t start, end;
 float cpu_time_used;
-int tick;
+int tick;  // TODO move into main() in game.c
 
 void one_tick(clock_t start, clock_t end) {
   printf("\e[%d;%dH" HIDE_CURSOR, win_row - 1, 1);
