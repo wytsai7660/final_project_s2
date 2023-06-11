@@ -1,10 +1,9 @@
+#include "animation.c"
 #include "draw.c"
 #include "enemy.c"
 #include "header.h"
 #include "map.c"
 #include "types.h"
-#include "animation.c"
-
 
 void clearPanel() {
   for (int i = win_row - TEXT_AREA_HEIGHT; i < win_row; i++) {
@@ -15,10 +14,10 @@ void clearPanel() {
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
   Animation *cat = new_Animation("assets/cat.txt");
-  if(cat == NULL) return;
+  if (cat == NULL) return;
 
-  game->playerOldMoves = rand_between(0, 2);
-  game->enemyOldMoves = rand_between(0, 2);
+  game->last_player_move = rand_between(0, 2);
+  game->last_enemy_move = rand_between(0, 2);
   char ch;
   int choice = 0, chosen = -1, result, current_tick;
   player->hp = player->max_hp;
@@ -50,20 +49,20 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       updateAnimationOnly = true;
     }
 
-    if(result == 1 && game->input_locked) {
-      animateHit(cat, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (cat->col/2));
+    if (result == 1 && game->input_locked) {
+      animateHit(cat, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (cat->col / 2));
     } else {
-      drawAnimation(cat, 0, 9, (win_col / 4) - (cat->col/2));
+      drawAnimation(cat, 0, 9, (win_col / 4) - (cat->col / 2));
     }
-    printf("\e[%d;%dH", 9 + cat->row, (win_col / 4) - (cat->col/2));
+    printf("\e[%d;%dH", 9 + cat->row, (win_col / 4) - (cat->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
-    if(result == 2 && game->input_locked) {
-      animateHit(cat, (tick - current_tick), &(game->input_locked), 5, (win_col / 4 * 3) - (cat->col/2));
+    if (result == 2 && game->input_locked) {
+      animateHit(cat, (tick - current_tick), &(game->input_locked), 5, (win_col / 4 * 3) - (cat->col / 2));
     } else {
-      drawAnimation(cat, 0, 5, (win_col / 4 * 3) - (cat->col/2));
+      drawAnimation(cat, 0, 5, (win_col / 4 * 3) - (cat->col / 2));
     }
-    printf("\e[%d;%dH", 5 + cat->row, (win_col / 4 * 3) - (cat->col/2));
+    printf("\e[%d;%dH", 5 + cat->row, (win_col / 4 * 3) - (cat->col / 2));
     drawHp(enemy->hp, enemy->max_hp, false);
 
     if (updateAnimationOnly) {
@@ -72,17 +71,16 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       continue;
     }
 
-    if(game->items_enabled[1]) {
+    if (game->items_enabled[1]) {
       player->hp = min(player->max_hp, player->hp + 5);
       player->backpack[1]--;
       game->items_enabled[1] = false;
     }
-    if(game->items_enabled[2]) {
+    if (game->items_enabled[2]) {
       player->sheild_enabled = true;
       player->backpack[2]--;
       game->items_enabled[2] = false;
     }
-
 
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
     drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
@@ -93,13 +91,13 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
 
     if (chosen != -1) {
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 4, 3);
-      int enemyMove = enemyNextMove(game->playerOldMoves, game->enemyOldMoves);
-      result = solveDamage(player, enemy, game, chosen, enemyMove);
+      int enemy_move = choose_enemy_move(*enemy, game->last_player_move, game->last_enemy_move);
+      result = solveDamage(player, enemy, game, chosen, enemy_move);
       printf("damage: %.2f\n", game->damage);
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 5, 3);
-      printf("You threw %s and enemy threw %s, %s!", moves[chosen], moves[enemyMove], gameResults[result]);
+      printf("You threw %s and enemy threw %s, %s!", moves[chosen], moves[enemy_move], gameResults[result]);
 
-      if(result != 0) {
+      if (result != 0) {
         game->input_locked = true;
         current_tick = tick + 1;
       }
@@ -107,23 +105,21 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       if (enemy->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you beat the enemy!");
-        if(game->is_boss) {
+        if (game->is_boss) {
           game->status = 8;
-        }else {
+        } else {
           game->status = 2;
         }
-        
       }
       if (player->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you loose!");
         player->life--;
-        if(game->is_boss) {
+        if (game->is_boss) {
           game->status = 9;
-        }else {
+        } else {
           game->status = 2;
         }
-
       }
 
       chosen = -1;
@@ -135,8 +131,8 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     one_tick(start, end);
   }
 
-  if(player->life <= 0) {
-      game->status = 9;
-    }
+  if (player->life <= 0) {
+    game->status = 9;
+  }
   Enemy_clear(enemy);
 }

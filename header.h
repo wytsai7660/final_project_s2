@@ -126,9 +126,11 @@ const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 // constants for 3d rendering
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 30;
-const float render_spacing = 0.001f;
+const float render_spacing = 0.01f;
+// const float render_spacing = 0.0005f;
 const float wall_height_2 = .5f;
 const float rotate_spacing = 1.f / 6.f;
+const float move_spacing = .1f;
 const char grayscale[] = ".'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";  // 69 chars
 // ".,-~:;=!*#$@";  // 12 chars
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.15f, 0.4f};

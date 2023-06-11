@@ -11,9 +11,9 @@ int main() {
   printf("player hp: %d, atk: %d, def: %d\n", p->hp, p->atk, p->def);
   printf("enemy hp: %d, atk: %d, def: %d\n", e->hp, e->atk, e->def);
   int playerMove = 2, enemyMove, result;
-  game->playerOldMoves = rand_between(0, 2);
-  game->enemyOldMoves = rand_between(0, 2);
-  enemyMove = enemyNextMove(game->playerOldMoves, game->enemyOldMoves);
+  game->last_player_move = rand_between(0, 2);
+  game->last_enemy_move = rand_between(0, 2);
+  enemyMove = choose_enemy_move(*e, game->last_player_move, game->last_enemy_move);
   result = solveDamage(p, e, game, playerMove, enemyMove);
 
   printf("damage: %f, result: %d\n", game->damage, result);

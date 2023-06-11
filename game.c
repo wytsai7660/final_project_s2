@@ -1,68 +1,66 @@
 // #include "3d_renderer"
 #include "battle.c"
 #include "draw.c"
-#include "map.c"
 #include "header.h"
+#include "map.c"
 #include "types.h"
 
+void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
+  char ch = m->data[playerPos->first][playerPos->second];
+  if (ch != '7') m->data[playerPos->first][playerPos->second] = '9';
+  int item;
 
-void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x){
-    char ch = m->data[playerPos->first][playerPos->second];
-    if (ch != '7') m->data[playerPos->first][playerPos->second] = '9';
-    int item;
-    
-    printf("\e[%d;%dH", y, x);
-    switch (ch)
-    {
+  printf("\e[%d;%dH", y, x);
+  switch (ch) {
     case '0':
-        printf("you gain hp!");
-        p->max_hp++;
-        break;
+      printf("you gain hp!");
+      p->max_hp++;
+      break;
     case '1':
-        printf("you loose hp!");
-        p->max_hp = max(p->max_hp-1, 1);
-        break;
+      printf("you loose hp!");
+      p->max_hp = max(p->max_hp - 1, 1);
+      break;
     case '2':
-        printf("you gain atk!");
-        p->atk++;
-        break;
+      printf("you gain atk!");
+      p->atk++;
+      break;
     case '3':
-        printf("you loose atk!");
-        p->atk = max(p->atk-1, 1);
-        break;
+      printf("you loose atk!");
+      p->atk = max(p->atk - 1, 1);
+      break;
     case '4':
-        printf("you gain atk!");
-        p->def++;
-        break;
+      printf("you gain atk!");
+      p->def++;
+      break;
     case '5':
-        printf("you loose atk!");
-        p->def = max(p->def-1, 0);
-        break;
+      printf("you loose atk!");
+      p->def = max(p->def - 1, 0);
+      break;
     case '6':
-        printf("you encounter the monster!");
-        game->status = 3;
-        break;
+      printf("you encounter the monster!");
+      game->status = 3;
+      break;
     case '7':
-        printf("you can see the all the map!");
-        p->watchTowerCnt += 1;
-        break;
+      printf("you can see the all the map!");
+      p->watchTowerCnt += 1;
+      break;
     case '8':
-        item = sample(items_ratio, sizeof(items_ratio)/sizeof(items_ratio[0]));
-        printf("you gain %s x1!", items_name[item]);
-        p->backpack[item]++;
-        break;
+      item = sample(items_ratio, sizeof(items_ratio) / sizeof(items_ratio[0]));
+      printf("you gain %s x1!", items_name[item]);
+      p->backpack[item]++;
+      break;
     case 'B':
-        printf("you encounter the boss!");
-        game->is_boss = true;
-        game->status = 3;
+      printf("you encounter the boss!");
+      game->is_boss = true;
+      game->status = 3;
     default:
-        break;
-    }
+      break;
+  }
 }
 
 void spawnBoss(Map *m) {
-  int x=0, y=0;
-  while(m->data[y][x] == '@' || m->data[y][x] == 'P') {
+  int x = 0, y = 0;
+  while (m->data[y][x] == '@' || m->data[y][x] == 'P') {
     y = rand_between(0, MAP_ROW);
     x = rand_between(0, MAP_COL);
   }
@@ -74,35 +72,33 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
   bool updateAnimationOnly;
   game->input_locked = false;
 
-  while(game->status == 2) {
+  while (game->status == 2) {
     start = clock();
 
     updateAnimationOnly = false;
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
-    if(bytesRead == 1 && !game->input_locked)
-    {
+    if (bytesRead == 1 && !game->input_locked) {
       switch (toupper(ch)) {
         case 'W':
-            printf(CLEAR HIDE_CURSOR);
-            break;
+          printf(CLEAR HIDE_CURSOR);
+          break;
         case 'A':
-            printf(CLEAR HIDE_CURSOR);
-            player->dir = (player->dir + 1) % 4;
-            break;
+          printf(CLEAR HIDE_CURSOR);
+          player->dir = (player->dir + 1) % 4;
+          break;
         case 'D':
-            printf(CLEAR HIDE_CURSOR);
-            player->dir = (player->dir - 1 + 4) % 4;
-            break;
+          printf(CLEAR HIDE_CURSOR);
+          player->dir = (player->dir - 1 + 4) % 4;
+          break;
         case 'E':
-            chooseItem(player, game);
-            printf(CLEAR HIDE_CURSOR);
-            break;
+          chooseItem(player, game);
+          printf(CLEAR HIDE_CURSOR);
+          break;
         default:
           updateAnimationOnly = true;
       }
-    } 
-    else {
+    } else {
       updateAnimationOnly = true;
     }
 
@@ -111,8 +107,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     //   render(player->pos, map);
     // }
 
-
-    if(updateAnimationOnly) {
+    if (updateAnimationOnly) {
       end = clock();
       one_tick(start, end);
       continue;
@@ -123,31 +118,30 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
     printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
 
-    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && toupper(ch) == 'W')
-    {
+    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && toupper(ch) == 'W') {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       player->pos.first += direction[player->dir][0];
       player->pos.second += direction[player->dir][1];
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
       game->round++;
-      if(game->round == 35) spawnBoss(map);
+      if (game->round == 35) spawnBoss(map);
       // game->input_locked = true;
     }
 
-    if(game->items_enabled[0]) {
+    if (game->items_enabled[0]) {
       int y, x;
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
       do {
         y = rand_between(0, MAP_ROW);
         x = rand_between(0, MAP_COL);
-      } while(map->data[y][x] == '@');
+      } while (map->data[y][x] == '@');
 
       printf("teleport to coordinate: %d, %d", y, x);
       player->pos.first = y, player->pos.second = x;
       player->backpack[0]--;
       game->items_enabled[0] = false;
     }
-    if(game->items_enabled[3]) {
+    if (game->items_enabled[3]) {
       player->watchTowerCnt += 10;
       player->backpack[3]--;
       game->items_enabled[3] = false;
@@ -175,8 +169,8 @@ int main() {
   tcgetattr(STDIN_FILENO, &old_term);
   term = old_term;
   term.c_lflag &= ~(ICANON | ECHO);
-  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
-  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  term.c_cc[VTIME] = 0;  // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1;   // Wait for at least 1 character before reading
   tcsetattr(STDIN_FILENO, TCSANOW, &term);
   fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
 #elif _WIN32
@@ -199,58 +193,46 @@ int main() {
     }
   }
 
-  game->status = 0;
+  game->status = 2;
 
-  //game loop
-  while(true) {
-    if(game->status == 0) 
-    {
+  // game loop
+  while (true) {
+    if (game->status == 0) {
       printf(CLEAR);
-      Animation *you_win = new_Animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
-      if(you_win == NULL) return -1;
-      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      Animation *you_win = new_Animation("assets/you_win.txt");  // https://fsymbols.com/generators/carty/
+      if (you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row / 2 - you_win->row / 2, win_col / 2 - you_win->col / 6);
       Animation_clear(you_win);
-      printf("\e[%d;%dH", win_row/2 + 5, win_col/2 - 12);
+      printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
       printf("[PRESS ANY KEY TO START]");
       getchar();
       game->status = 2;
-    }
-    else if(game->status == 2) 
-    {
+    } else if (game->status == 2) {
       mapLoop(game, player, map);
-    }
-    else if(game->status == 3) 
-    {
+    } else if (game->status == 3) {
       battleLoop(game, player, map);
-    }
-    else if(game->status == 8) 
-    {
+    } else if (game->status == 8) {
       delay(3);
       printf(CLEAR);
-      Animation *you_win = new_Animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
-      if(you_win == NULL) return -1;
-      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      Animation *you_win = new_Animation("assets/you_win.txt");  // https://fsymbols.com/generators/carty/
+      if (you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row / 2 - you_win->row / 2, win_col / 2 - you_win->col / 6);
       Animation_clear(you_win);
       printf("\e[%d;%dH", win_row - 1, 1);
       break;
-    }
-    else if(game->status == 9) 
-    {
+    } else if (game->status == 9) {
       delay(3);
       printf(CLEAR);
-      Animation *game_over = new_Animation("assets/game_over.txt"); // https://fsymbols.com/generators/carty/
-      if(game_over == NULL) return -1;
-      drawAnimation(game_over, 0, win_row/2 - game_over->row/2, win_col/2 - game_over->col/6);
+      Animation *game_over = new_Animation("assets/game_over.txt");  // https://fsymbols.com/generators/carty/
+      if (game_over == NULL) return -1;
+      drawAnimation(game_over, 0, win_row / 2 - game_over->row / 2, win_col / 2 - game_over->col / 6);
       Animation_clear(game_over);
       printf("\e[%d;%dH", win_row - 1, 1);
       break;
-    }
-    else 
-    {
+    } else {
       printf("wrong game status: %d\n", game->status);
       return -1;
     }
-
   }
 
   // free var

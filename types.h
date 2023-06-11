@@ -328,8 +328,8 @@ typedef struct {
   float damage;
   bool input_locked;
   bool is_boss;
-  int enemyOldMoves;
-  int playerOldMoves;
+  int last_enemy_move;
+  int last_player_move;
   IntPairList *playerPath;
 } Game;
 
