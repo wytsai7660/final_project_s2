@@ -199,10 +199,10 @@ int main() {
     if(game->status == 0) 
     {
       printf(CLEAR);
-      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      Animation *you_win = new_Animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
       if(you_win == NULL) return -1;
       drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
-      animation_clear(you_win);
+      Animation_clear(you_win);
       printf("\e[%d;%dH", win_row/2 + 5, win_col/2 - 12);
       printf("[PRESS ANY KEY TO START]");
       getchar();
@@ -220,10 +220,10 @@ int main() {
     {
       delay(3);
       printf(CLEAR);
-      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      Animation *you_win = new_Animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
       if(you_win == NULL) return -1;
       drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
-      animation_clear(you_win);
+      Animation_clear(you_win);
       printf("\e[%d;%dH", win_row - 1, 1);
       break;
     }
@@ -231,10 +231,10 @@ int main() {
     {
       delay(3);
       printf(CLEAR);
-      Animation *game_over = new_animation("assets/game_over.txt"); // https://fsymbols.com/generators/carty/
+      Animation *game_over = new_Animation("assets/game_over.txt"); // https://fsymbols.com/generators/carty/
       if(game_over == NULL) return -1;
       drawAnimation(game_over, 0, win_row/2 - game_over->row/2, win_col/2 - game_over->col/6);
-      animation_clear(game_over);
+      Animation_clear(game_over);
       printf("\e[%d;%dH", win_row - 1, 1);
       break;
     }
