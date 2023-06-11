@@ -1,8 +1,7 @@
 // #include "3d_renderer"
-// #include "battle.c"
+#include "battle.c"
 #include "draw.c"
 #include "map.c"
-// #include "enemy.c"
 #include "header.h"
 #include "types.h"
 
@@ -41,7 +40,7 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '6':
         printf("you encounter the monster!");
-        // game->status = 3;
+        game->status = 3;
         break;
     case '7':
         printf("you can see the all the map!");
@@ -52,92 +51,27 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         printf("you gain %s x1!", items_name[item]);
         p->backpack[item]++;
         break;
+    case 'B':
+        printf("you encounter the boss!");
+        game->is_boss = true;
+        game->status = 3;
     default:
         break;
     }
 }
 
-void chooseItem(PlayerData *p, Game *g) {
-  int choice = 0;
-  char ch;
-  drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
-  printf(HIDE_CURSOR);
-
-  while (true)
-  {
-    start = clock();
-    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
-    clearInputBuffer();
-
-    if (bytesRead == 1) 
-    {
-      if (ch == 'a') {
-            choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
-          } else if (ch == 'd') {
-            choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
-          } else if (ch == '\n') {
-            if(p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
-              g->items_enabled[choice] = !g->items_enabled[choice];
-            }
-          } else if (ch == 'q') {
-            break;
-          } else {
-            end = clock();
-            one_tick(start, end);
-            continue;
-          }
-    }
-    else {
-      end = clock();
-      one_tick(start, end);
-      continue;
-    }
-
-    drawBackpack(p, g, choice, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
-    printf(HIDE_CURSOR);
+void spawnBoss(Map *m) {
+  int x=0, y=0;
+  while(m->data[y][x] == '@' || m->data[y][x] == 'P') {
+    y = rand_between(0, MAP_ROW);
+    x = rand_between(0, MAP_COL);
   }
+  m->data[y][x] = 'B';
 }
 
-int main() {
-  srand((unsigned)time(NULL));
-  // obtain the terminal window's size (row and column) 
-#ifdef __linux__
-  struct winsize w;
-  ioctl(0, TIOCGWINSZ, &w);
-  win_row = w.ws_row, win_col = w.ws_col;
-
-  // setting the cursor
-  struct termios term;
-  tcgetattr(STDIN_FILENO, &term);
-  term.c_lflag &= ~(ICANON | ECHO);
-  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
-  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
-  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
-#elif _WIN32
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-  win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-#endif
-
-  // variable init
-  Map *map = new_Map(MAP_ROW, MAP_COL);
-  PlayerData *player = new_PlayerData();
-  Game *game = new_Game();
+void mapLoop(Game *game, PlayerData *player, Map *map) {
   char ch;
-  const int smallMapSize = 7;
-  game->status = 2;
 
-  gen_maze(map);
-  for (int i = 0; i < map->row; i++) {
-    for (int j = 0; j < map->col; j++) {
-      if (map->data[i][j] == 'P') {
-        player->pos = make_IntPair(i, j);
-      }
-    }
-  }
-
-  //game loop
   while(game->status == 2) {
     start = clock();
 
@@ -190,6 +124,7 @@ int main() {
       player->pos.second += direction[player->dir][1];
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
       game->round++;
+      if(game->round == 35) spawnBoss(map);
     }
 
     if(game->items_enabled[0]) {
@@ -217,10 +152,103 @@ int main() {
     end = clock();
     one_tick(start, end);
   }
+}
+
+int main() {
+  srand((unsigned)time(NULL));
+  // obtain the terminal window's size (row and column) 
+#ifdef __linux__
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
+  win_row = w.ws_row, win_col = w.ws_col;
+
+  // setting the cursor
+  struct termios term;
+  struct termios old_term;
+  tcgetattr(STDIN_FILENO, &old_term);
+  term = old_term;
+  term.c_lflag &= ~(ICANON | ECHO);
+  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+#elif _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#endif
+
+  // variable init
+  Map *map = new_Map(MAP_ROW, MAP_COL);
+  PlayerData *player = new_PlayerData();
+  Game *game = new_Game();
+
+  gen_maze(map);
+  for (int i = 0; i < map->row; i++) {
+    for (int j = 0; j < map->col; j++) {
+      if (map->data[i][j] == 'P') {
+        player->pos = make_IntPair(i, j);
+      }
+    }
+  }
+
+  game->status = 0;
+
+  //game loop
+  while(true) {
+    if(game->status == 0) 
+    {
+      printf(CLEAR);
+      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      if(you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      animation_clear(you_win);
+      printf("\e[%d;%dH", win_row/2 + 5, win_col/2 - 12);
+      printf("[PRESS ANY KEY TO START]");
+      getchar();
+      game->status = 2;
+    }
+    else if(game->status == 2) 
+    {
+      mapLoop(game, player, map);
+    }
+    else if(game->status == 3) 
+    {
+      battleLoop(game, player, map);
+    }
+    else if(game->status == 8) 
+    {
+      delay(3);
+      printf(CLEAR);
+      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      if(you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      animation_clear(you_win);
+      printf("\e[%d;%dH", win_row - 1, 1);
+      break;
+    }
+    else if(game->status == 9) 
+    {
+      delay(3);
+      printf(CLEAR);
+      Animation *game_over = new_animation("assets/game_over.txt"); // https://fsymbols.com/generators/carty/
+      if(game_over == NULL) return -1;
+      drawAnimation(game_over, 0, win_row/2 - game_over->row/2, win_col/2 - game_over->col/6);
+      animation_clear(game_over);
+      printf("\e[%d;%dH", win_row - 1, 1);
+      break;
+    }
+    else 
+    {
+      printf("wrong game status: %d\n", game->status);
+      return -1;
+    }
+
+  }
 
   // free var
   PlayerData_clear(player);
   Game_clear(game);
   Map_clear(map);
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
 }

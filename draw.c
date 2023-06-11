@@ -1,3 +1,7 @@
+#ifndef DRAW_C_
+#define DRAW_C_
+
+
 #include "header.h"
 #include "types.h"
 
@@ -53,11 +57,11 @@ void drawSolidBox(int height, int width, int tick, int y, int x) {
     
 }
 
-void drawAnimation(Animation *ani, int frame, int type, int y, int x) {
+void drawAnimation(Animation *ani, int frame, int y, int x) {
     printf("\e[%d;%dH", y, x);
     for (int i = 0; i < ani->row; i++) {
         for (int j = 0; j < ani->col; j++) {
-            printf("%c", ani->data[type][frame][i][j]);
+            printf("%c", ani->data[frame][i][j]);
         }
         printf("\n");
         printf("\e[%d;%dH", ++y, x);
@@ -65,28 +69,31 @@ void drawAnimation(Animation *ani, int frame, int type, int y, int x) {
 }
 
 
-void drawHp(int hp, int max_hp) {
-    if(hp < 0 || max_hp <= 0) return;
+void drawHp(int hp, int hpMax, bool draw_sheild) {
+    if(hp < 0 || hpMax <= 0) return;
 
     printf("HP: |");
-    if((float)hp < max_hp*0.3) {
+    if((float)hp < hpMax*0.3) {
         printf("\e[7;31m");
-    } else if((float)hp <= max_hp*0.5) {
+    } else if((float)hp <= hpMax*0.5) {
         printf("\e[7;33m");
     } else {
         printf("\e[7;32m");
     }
 
-    for(int i=0;i<max_hp;i++){
+    for(int i=0;i<hpMax;i++){
         if(hp == i) {
-            printf("\033[0m");
+            printf(RESET);
         }
             printf(" ");
     }
 
-    printf("\033[0m|\n");
+    if(draw_sheild) {
+        printf(RESET"|  ⛨\n");
+    }else {
+        printf(RESET "|\n");
+    }
 }
-
 void drawChoice(char *option[], int choice, int y, int x) {
     printf("\e[%d;%dH", y, x);
     for(int i=0; i<3; i++) {
@@ -116,7 +123,7 @@ void drawStatusBar(PlayerData *p, bool printHp, int y, int x) {
 
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
-    if(printHp) drawHp(p->max_hp, p->max_hp);
+    if(printHp) drawHp(p->max_hp, p->max_hp, false);
 }
 
 void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {
@@ -205,3 +212,47 @@ void drawMiniMap(Map *map, IntPair *playerPos, int smallMapSize, int watchTowerC
         printf("\e[%d;%dH", ++y, x);
     }
 }
+
+void chooseItem(PlayerData *p, Game *g) {
+  int choice = 0;
+  char ch;
+  drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+  printf(HIDE_CURSOR);
+
+  while (true)
+  {
+    start = clock();
+    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+    clearInputBuffer();
+
+    if (bytesRead == 1) 
+    {
+      if (ch == 'a') {
+            choice = (choice - 1 + sizeof(items_ratio)/sizeof(float)) % (sizeof(items_ratio)/sizeof(float));
+          } else if (ch == 'd') {
+            choice = (choice + 1) % (sizeof(items_ratio)/sizeof(float));
+          } else if (ch == '\n') {
+            if(p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
+              g->items_enabled[choice] = !g->items_enabled[choice];
+            }
+          } else if (ch == 'q') {
+            break;
+          } else {
+            end = clock();
+            one_tick(start, end);
+            continue;
+          }
+    }
+    else {
+      end = clock();
+      one_tick(start, end);
+      continue;
+    }
+
+    drawBackpack(p, g, choice, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
+    printf(HIDE_CURSOR);
+  }
+}
+
+
+#endif

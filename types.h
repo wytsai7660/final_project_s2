@@ -188,6 +188,7 @@ typedef struct {
   int life, hp, max_hp;
   int atk, def, crit, dir;
   int watchTowerCnt;
+  bool sheild_enabled;
   IntPair pos;
   int backpack[ITEM_TYPES];
   // item
@@ -205,6 +206,7 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = 10;
   p->watchTowerCnt = 0;
+  p->sheild_enabled = false;
 #ifdef DEBUG
   p->life = 99;
   p->hp = 15;
@@ -213,6 +215,7 @@ PlayerData *new_PlayerData() {
   p->def = 999;
   p->crit = 99;
   p->watchTowerCnt = 0;
+  p->sheild_enabled = false;
 #endif
   for (unsigned i = 0; i < ITEM_TYPES; i++) p->backpack[i] = 0;  // currently 4 types of item
 #ifdef DEBUG
@@ -263,44 +266,55 @@ void Enemy_clear(Enemy *e) { free(e); }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 typedef struct {
-  int types;
   int frames;
   int row;
   int col;
-  char ****data;
+  char ***data;
 } Animation;
 
 Animation *new_animation(const char *filename) {
-  FILE *file = fopen(filename, "r");
+  FILE *file = fopen(filename, "rb");
   if (file == NULL) {
     printf("Failed to open file: %s\n", filename);
     return NULL;
   }
 
   Animation *ani = malloc(sizeof(Animation));
-  fscanf(file, "%d", &(ani->types));
   fscanf(file, "%d", &(ani->frames));
   fscanf(file, "%d", &(ani->row));
   fscanf(file, "%d", &(ani->col));
+  fgetc(file);
 
   // allocate memory & read from file
-  ani->data = malloc(ani->types * sizeof(char ***));
-  for (int i = 0; i < ani->types; i++) {
-    fgetc(file);
-    ani->data[i] = malloc(ani->frames * sizeof(char **));
-    for (int j = 0; j < ani->frames; j++) {
-      ani->data[i][j] = malloc(ani->row * sizeof(char *));
-      for (int k = 0; k < ani->row; k++) {
-        ani->data[i][j][k] = malloc((ani->col + 1) * sizeof(char));  // +1 for null terminator
-        fgets(ani->data[i][j][k], ani->col + 1, file);
-        ani->data[i][j][k][strcspn(ani->data[i][j][k], "\n")] = '\0';  // remove trailing newline
-      }
+  ani->data = malloc(ani->frames * sizeof(char **));
+  for (int i = 0; i < ani->frames; i++) {
+    ani->data[i] = malloc(ani->row * sizeof(char *));
+    for (int j = 0; j < ani->row; j++) {
+      ani->data[i][j] = malloc((ani->col + 1) * sizeof(char));  // +1 for null terminator
+      fgets(ani->data[i][j], ani->col + 1, file);
+      int newline = strcspn(ani->data[i][j], "\n");
+#ifdef DEBUG
+      printf("frame: %d, line: %d, newline: %d\ncontent: %s\n",i, j,  newline, ani->data[i][j]);
+#endif
+      ani->data[i][j][newline] = '\0';  // remove trailing newline
     }
   }
 
   fclose(file);
   return ani;
 }
+
+void animation_clear(Animation *ani) {
+  for (int i = 0; i < ani->frames; i++) {
+    for (int j = 0; j < ani->row; j++) {
+      free(ani->data[i][j]);
+    }
+    free(ani->data[i]);
+  }
+  free(ani->data);
+  free(ani);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -312,9 +326,8 @@ typedef struct {
   bool *items_enabled;
   bool isCrit;
   float damage;
-  bool inputLocked;
-  // int *enemyMoves;
-  // int *playerMoves;
+  bool input_locked;
+  bool is_boss;
   int enemyOldMoves;
   int playerOldMoves;
   IntPairList *playerPath;
@@ -331,8 +344,8 @@ Game *new_Game() {
   // 8: win
   // 9: game over?
 
-  // g->enemyMoves = malloc(sizeof(int) * 50);
-  // g->playerMoves = malloc(sizeof(int) * 50);
+  g->input_locked = false;
+  g->is_boss = false;
   g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
   return g;

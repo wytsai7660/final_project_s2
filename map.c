@@ -1,3 +1,6 @@
+#ifndef MAP_C_
+#define MAP_C_
+
 // #include "3d_renderer.c"
 #include "header.h"
 #include "types.h"
@@ -49,3 +52,5 @@ void gen_maze(Map *map) {  // generate the maze
   IntTripleStack_clear(pos_st);
   return;
 }
+
+#endif
