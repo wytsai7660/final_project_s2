@@ -188,6 +188,7 @@ typedef struct {
   int life, hp, max_hp;
   int atk, def, crit, dir;
   int watchTowerCnt;
+  bool sheild_enabled;
   IntPair pos;
   int backpack[ITEM_TYPES];
   // item
@@ -205,6 +206,7 @@ PlayerData *new_PlayerData() {
   p->def = 3;
   p->crit = 10;
   p->watchTowerCnt = 0;
+  p->sheild_enabled = false;
 #ifdef DEBUG
   p->life = 99;
   p->hp = 15;
@@ -213,6 +215,7 @@ PlayerData *new_PlayerData() {
   p->def = 999;
   p->crit = 99;
   p->watchTowerCnt = 0;
+  p->sheild_enabled = false;
 #endif
   for (unsigned i = 0; i < ITEM_TYPES; i++) p->backpack[i] = 0;  // currently 4 types of item
 #ifdef DEBUG
@@ -323,9 +326,8 @@ typedef struct {
   bool *items_enabled;
   bool isCrit;
   float damage;
-  bool inputLocked;
-  // int *enemyMoves;
-  // int *playerMoves;
+  bool input_locked;
+  bool is_boss;
   int enemyOldMoves;
   int playerOldMoves;
   IntPairList *playerPath;
@@ -342,8 +344,8 @@ Game *new_Game() {
   // 8: win
   // 9: game over?
 
-  // g->enemyMoves = malloc(sizeof(int) * 50);
-  // g->playerMoves = malloc(sizeof(int) * 50);
+  g->input_locked = false;
+  g->is_boss = false;
   g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));
   for (unsigned i = 0; i < sizeof(items_ratio) / sizeof(float); i++) g->items_enabled[i] = false;
   return g;

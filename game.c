@@ -52,51 +52,27 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         printf("you gain %s x1!", items_name[item]);
         p->backpack[item]++;
         break;
+    case 'B':
+        printf("you encounter the boss!");
+        game->is_boss = true;
+        game->status = 3;
     default:
         break;
     }
 }
 
-int main() {
-  srand((unsigned)time(NULL));
-  // obtain the terminal window's size (row and column) 
-#ifdef __linux__
-  struct winsize w;
-  ioctl(0, TIOCGWINSZ, &w);
-  win_row = w.ws_row, win_col = w.ws_col;
-
-  // setting the cursor
-  struct termios term;
-  tcgetattr(STDIN_FILENO, &term);
-  term.c_lflag &= ~(ICANON | ECHO);
-  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
-  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
-  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
-#elif _WIN32
-  CONSOLE_SCREEN_BUFFER_INFO csbi;
-  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-  win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-#endif
-
-  // variable init
-  Map *map = new_Map(MAP_ROW, MAP_COL);
-  PlayerData *player = new_PlayerData();
-  Game *game = new_Game();
-  char ch;
-  const int smallMapSize = 7;
-  game->status = 2;
-
-  gen_maze(map);
-  for (int i = 0; i < map->row; i++) {
-    for (int j = 0; j < map->col; j++) {
-      if (map->data[i][j] == 'P') {
-        player->pos = make_IntPair(i, j);
-      }
-    }
+void spawnBoss(Map *m) {
+  int x=0, y=0;
+  while(m->data[y][x] == '@' || m->data[y][x] == 'P') {
+    y = rand_between(0, MAP_ROW);
+    x = rand_between(0, MAP_COL);
   }
+  m->data[y][x] = 'B';
+}
 
-  //game loop
+void mapLoop(Game *game, PlayerData *player, Map *map) {
+  char ch;
+
   while(game->status == 2) {
     start = clock();
 
@@ -149,6 +125,7 @@ int main() {
       player->pos.second += direction[player->dir][1];
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
       game->round++;
+      if(game->round == 35) spawnBoss(map);
     }
 
     if(game->items_enabled[0]) {
@@ -176,10 +153,53 @@ int main() {
     end = clock();
     one_tick(start, end);
   }
+}
+
+int main() {
+  srand((unsigned)time(NULL));
+  // obtain the terminal window's size (row and column) 
+#ifdef __linux__
+  struct winsize w;
+  ioctl(0, TIOCGWINSZ, &w);
+  win_row = w.ws_row, win_col = w.ws_col;
+
+  // setting the cursor
+  struct termios term;
+  struct termios old_term;
+  tcgetattr(STDIN_FILENO, &old_term);
+  term = old_term;
+  term.c_lflag &= ~(ICANON | ECHO);
+  term.c_cc[VTIME] = 0; // Set the inter-character timer to 0
+  term.c_cc[VMIN] = 1; // Wait for at least 1 character before reading
+  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+#elif _WIN32
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+  win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+#endif
+
+  // variable init
+  Map *map = new_Map(MAP_ROW, MAP_COL);
+  PlayerData *player = new_PlayerData();
+  Game *game = new_Game();
+
+  gen_maze(map);
+  for (int i = 0; i < map->row; i++) {
+    for (int j = 0; j < map->col; j++) {
+      if (map->data[i][j] == 'P') {
+        player->pos = make_IntPair(i, j);
+      }
+    }
+  }
+
+  game->status = 2;
+  //game loop
+  mapLoop(game, player, map);
 
   // free var
   PlayerData_clear(player);
   Game_clear(game);
   Map_clear(map);
-  tcsetattr(STDIN_FILENO, TCSANOW, &term);
+  tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
 }

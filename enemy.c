@@ -70,6 +70,8 @@ int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove)
         // enemy win
         g->isCrit = rand_between(1, 100) <= e->crit;
         g->damage = e->atk * (g->isCrit ? 2 : 1) / (1 + p->def / 10.0);
+        if(p->sheild_enabled && rand_between(0, 99) <= 90) g->damage = 0;
+        p->sheild_enabled = false;
         p->hp -= (int)g->damage;
     } else if (result == 2) {
         // player win
