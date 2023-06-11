@@ -1,5 +1,5 @@
 // #include "3d_renderer"
-// #include "battle.c"
+#include "battle.c"
 #include "draw.c"
 #include "map.c"
 // #include "enemy.c"
@@ -196,6 +196,7 @@ int main() {
   game->status = 2;
   //game loop
   mapLoop(game, player, map);
+  // battleLoop(game, player, map);
 
   // free var
   PlayerData_clear(player);

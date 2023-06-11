@@ -69,28 +69,31 @@ void drawAnimation(Animation *ani, int frame, int y, int x) {
 }
 
 
-void drawHp(int hp, int max_hp) {
-    if(hp < 0 || max_hp <= 0) return;
+void drawHp(int hp, int hpMax, bool draw_sheild) {
+    if(hp < 0 || hpMax <= 0) return;
 
     printf("HP: |");
-    if((float)hp < max_hp*0.3) {
+    if((float)hp < hpMax*0.3) {
         printf("\e[7;31m");
-    } else if((float)hp <= max_hp*0.5) {
+    } else if((float)hp <= hpMax*0.5) {
         printf("\e[7;33m");
     } else {
         printf("\e[7;32m");
     }
 
-    for(int i=0;i<max_hp;i++){
+    for(int i=0;i<hpMax;i++){
         if(hp == i) {
-            printf("\033[0m");
+            printf(RESET);
         }
             printf(" ");
     }
 
-    printf("\033[0m|\n");
+    if(draw_sheild) {
+        printf(RESET"|  ⛨\n");
+    }else {
+        printf(RESET "|\n");
+    }
 }
-
 void drawChoice(char *option[], int choice, int y, int x) {
     printf("\e[%d;%dH", y, x);
     for(int i=0; i<3; i++) {
@@ -120,7 +123,7 @@ void drawStatusBar(PlayerData *p, bool printHp, int y, int x) {
 
     printf("       | ATK: %-10d | DEF: %-10d | CRIT: %d%%         | ", p->atk, p->def, p->crit);
     
-    if(printHp) drawHp(p->max_hp, p->max_hp);
+    if(printHp) drawHp(p->max_hp, p->max_hp, false);
 }
 
 void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {
