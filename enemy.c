@@ -89,29 +89,16 @@ int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove)
 // loss
 void bossPolicy(Game *g, Enemy *e) {
     if(e->hp <= 20) {
-        e->bossState = sample(bossTransferMatrix[0][e->bossState], 3);
+        e->boss_state = sample(bossTransferMatrix[0][e->boss_state], 3);
     }else if(g->damage > 20) {
-        e->bossState = sample(bossTransferMatrix[1][e->bossState], 3);
+        e->boss_state = sample(bossTransferMatrix[1][e->boss_state], 3);
     }
 
-    if(e->bossState == 0) {
+    if(e->boss_state == 0) {
         e->atk = 20;
-    }else if(e->bossState == 1) {
+    }else if(e->boss_state == 1) {
         e->atk = 30;
     } else {
         e->def = 20;
-    }
-}
-
-void printStates(Enemy *e){
-    printf("n_states: %d\n", e->n_states);
-
-    for(int i=0;i<e->n_states;i++){
-        for(int j=0;j<e->n_states;j++){
-
-            printf("%.2f ", e->data[i][j]);
-
-        }
-        printf("\n");
     }
 }

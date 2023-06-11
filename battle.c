@@ -4,43 +4,6 @@
 #include "map.c"
 #include "types.h"
 
-void chooseItem(PlayerData *p, Game *g) {
-  int choice = 0;
-  char ch;
-  drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
-  printf(HIDE_CURSOR);
-
-  while (true) {
-    start = clock();
-    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
-    clearInputBuffer();
-
-    if (bytesRead == 1) {
-      if (ch == 'a') {
-        choice = (choice - 1 + sizeof(items_ratio) / sizeof(float)) % (sizeof(items_ratio) / sizeof(float));
-      } else if (ch == 'd') {
-        choice = (choice + 1) % (sizeof(items_ratio) / sizeof(float));
-      } else if (ch == '\n') {
-        if (p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
-          g->items_enabled[choice] = !g->items_enabled[choice];
-        }
-      } else if (ch == 'q') {
-        break;
-      } else {
-        end = clock();
-        one_tick(start, end);
-        continue;
-      }
-    } else {
-      end = clock();
-      one_tick(start, end);
-      continue;
-    }
-
-    drawBackpack(p, g, choice, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
-    printf(HIDE_CURSOR);
-  }
-}
 
 void clearPanel() {
   for (int i = win_row - TEXT_AREA_HEIGHT; i < win_row; i++) {
