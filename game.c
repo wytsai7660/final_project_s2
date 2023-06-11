@@ -2,7 +2,6 @@
 #include "battle.c"
 #include "draw.c"
 #include "map.c"
-// #include "enemy.c"
 #include "header.h"
 #include "types.h"
 
@@ -41,7 +40,7 @@ void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, i
         break;
     case '6':
         printf("you encounter the monster!");
-        // game->status = 3;
+        game->status = 3;
         break;
     case '7':
         printf("you can see the all the map!");
@@ -193,10 +192,59 @@ int main() {
     }
   }
 
-  game->status = 2;
+  game->status = 0;
+
   //game loop
-  mapLoop(game, player, map);
-  // battleLoop(game, player, map);
+  while(true) {
+    if(game->status == 0) 
+    {
+      printf(CLEAR);
+      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      if(you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      animation_clear(you_win);
+      printf("\e[%d;%dH", win_row/2 + 5, win_col/2 - 12);
+      printf("[PRESS ANY KEY TO START]");
+      getchar();
+      game->status = 2;
+    }
+    else if(game->status == 2) 
+    {
+      mapLoop(game, player, map);
+    }
+    else if(game->status == 3) 
+    {
+      battleLoop(game, player, map);
+    }
+    else if(game->status == 8) 
+    {
+      delay(3);
+      printf(CLEAR);
+      Animation *you_win = new_animation("assets/you_win.txt"); // https://fsymbols.com/generators/carty/
+      if(you_win == NULL) return -1;
+      drawAnimation(you_win, 0, win_row/2 - you_win->row/2, win_col/2 - you_win->col/6);
+      animation_clear(you_win);
+      printf("\e[%d;%dH", win_row - 1, 1);
+      break;
+    }
+    else if(game->status == 9) 
+    {
+      delay(3);
+      printf(CLEAR);
+      Animation *game_over = new_animation("assets/game_over.txt"); // https://fsymbols.com/generators/carty/
+      if(game_over == NULL) return -1;
+      drawAnimation(game_over, 0, win_row/2 - game_over->row/2, win_col/2 - game_over->col/6);
+      animation_clear(game_over);
+      printf("\e[%d;%dH", win_row - 1, 1);
+      break;
+    }
+    else 
+    {
+      printf("wrong game status: %d\n", game->status);
+      return -1;
+    }
+
+  }
 
   // free var
   PlayerData_clear(player);

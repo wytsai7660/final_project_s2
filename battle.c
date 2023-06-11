@@ -89,13 +89,23 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       if (enemy->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you beat the enemy!");
-        game->status = 2;
+        if(game->is_boss) {
+          game->status = 8;
+        }else {
+          game->status = 2;
+        }
+        
       }
       if (player->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you loose!");
         player->life--;
-        game->status = 2;
+        if(game->is_boss) {
+          game->status = 9;
+        }else {
+          game->status = 2;
+        }
+
       }
 
       chosen = -1;
@@ -108,12 +118,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   }
 
   if(player->life <= 0) {
-    game->status == 9;
-  }
-  if(game->is_boss && player->hp <= 0) {
-    game->status = 9;
-  }
-  if(game->is_boss && enemy->hp <= 0) {
-    game->status = 8;
-  }
+      game->status = 9;
+    }
+
 }
