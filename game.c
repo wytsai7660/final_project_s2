@@ -69,6 +69,7 @@ void spawnBoss(Map *m) {
 
 void mapLoop(Game *game, PlayerData *player, Map *map) {
   char ch;
+  int current_tick;
   bool updateAnimationOnly;
   game->input_locked = false;
 
@@ -85,11 +86,11 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
           break;
         case 'A':
           printf(CLEAR HIDE_CURSOR);
-          player->dir = (player->dir + 1) % 4;
+          player->dir = (player->dir - 1 + 4) % 4;
           break;
         case 'D':
           printf(CLEAR HIDE_CURSOR);
-          player->dir = (player->dir - 1 + 4) % 4;
+          player->dir = (player->dir + 1) % 4;
           break;
         case 'E':
           chooseItem(player, game);
@@ -126,6 +127,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       game->round++;
       if (game->round == 35) spawnBoss(map);
       // game->input_locked = true;
+      // current_tick = tick + 1;
     }
 
     if (game->items_enabled[0]) {
@@ -193,7 +195,8 @@ int main() {
     }
   }
 
-  game->status = 2;
+  game->status = 3;
+  game->is_boss = true;
 
   // game loop
   while (true) {

@@ -246,11 +246,20 @@ typedef struct {
 Enemy *new_Enemy(PlayerData *p, bool boss) {
   Enemy *e = malloc(sizeof(Enemy));
   e->boss_state = boss;
-  e->atk = rand_between(p->hp / 10 + 1, p->hp / 3 + 1);
-  e->def = rand_between(p->atk / 10 + 1, p->atk / 2 + 1);
-  e->hp = p->max_hp + rand_between(-5, 5);
-  e->max_hp = e->hp;
-  e->crit = rand_between(0, 10);
+  if (boss) {
+    e->atk = rand_between(p->hp / 4 + 1, p->hp / 3 + 1);
+    e->def = rand_between(p->atk / 7 + 1, p->atk / 2 + 1);
+    e->hp = p->max_hp + 20;
+    e->max_hp = e->hp;
+    e->crit = rand_between(40, 80);
+  } else {
+    e->atk = rand_between(p->hp / 10 + 1, p->hp / 3 + 1);
+    e->def = rand_between(p->atk / 7 + 1, p->atk / 2 + 1);
+    e->hp = p->max_hp + rand_between(-5, 5);
+    e->max_hp = e->hp;
+    e->crit = rand_between(0, 10);
+  }
+  
   // prob of paper, sccisor, stone
   // TODO maybe switch to a better way to generate the ratio
   float sum = 0;

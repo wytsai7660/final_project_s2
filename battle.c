@@ -22,7 +22,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   int choice = 0, chosen = -1, result, current_tick;
   player->hp = player->max_hp;
 
-  while (game->status == 3) {
+  while (game->status == 3 || game->input_locked) {
     start = clock();
 
     bool updateAnimationOnly = false;
@@ -105,6 +105,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       if (enemy->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you beat the enemy!");
+        enemy->hp = 0;
         if (game->is_boss) {
           game->status = 8;
         } else {
@@ -114,6 +115,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       if (player->hp <= 0) {
         printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
         printf("you loose!");
+        player->hp = 0;
         player->life--;
         if (game->is_boss) {
           game->status = 9;
