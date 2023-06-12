@@ -41,27 +41,6 @@ int choose_enemy_move(Enemy e, int last_player_move, int last_enemy_move) {
   return enemy_move;
 }
 
-// real damage = (int) atk * (1 + isCrit ? 2 : 1) / (1 + def / 10)
-int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove) {
-  int result = (enemyMove - playerMove + 3) % 3;
-  if (result == 0) {
-    // tie
-  } else if (result == 1) {
-    // enemy win
-    g->isCrit = rand_between(1, 100) <= e->crit;
-    g->damage = e->atk * (g->isCrit ? 2 : 1) / (1 + p->def / 10.0);
-    if (p->sheild_enabled && rand_between(0, 99) <= 90) g->damage = 0;
-    p->sheild_enabled = false;
-    p->hp -= (int)g->damage;
-  } else if (result == 2) {
-    // player win
-    g->isCrit = rand_between(1, 100) <= p->crit;
-    g->damage = p->atk * (g->isCrit ? 2 : 1) / (1 + e->def / 10.0);
-    e->hp -= (int)g->damage;
-  }
-  return result;
-}
-
 // event
 // boss hp below 20
 // boss got damage over 20
@@ -80,7 +59,31 @@ void bossPolicy(Game *g, Enemy *e) {
     e->atk = 20;
   } else if (e->boss_state == 1) {
     e->atk = 30;
+    e->def = 10;
   } else {
-    e->def = 20;
+    e->def = 30;
   }
 }
+
+// real damage = (int) atk * (1 + isCrit ? 2 : 1) / (1 + def / 10)
+int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove) {
+  int result = (enemyMove - playerMove + 3) % 3;
+  if (g->is_boss) bossPolicy(g, e);
+  if (result == 0) {
+    // tie
+  } else if (result == 1) {
+    // enemy win
+    g->isCrit = rand_between(1, 100) <= e->crit;
+    g->damage = e->atk * (g->isCrit ? 2 : 1) / (1 + p->def / 10.0);
+    if (p->sheild_enabled && rand_between(0, 99) <= 90) g->damage = 0;
+    p->sheild_enabled = false;
+    p->hp -= (int)g->damage;
+  } else if (result == 2) {
+    // player win
+    g->isCrit = rand_between(1, 100) <= p->crit;
+    g->damage = p->atk * (g->isCrit ? 2 : 1) / (1 + e->def / 10.0);
+    e->hp -= (int)g->damage;
+  }
+  return result;
+}
+
