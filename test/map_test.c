@@ -2,7 +2,7 @@
 
 int main() {
   srand((unsigned)time(NULL));
-  Map *map = new_Map(17, 87);
+  Map *map = new_Map(17, 17);
   int arr[10] = {};
   gen_maze(map);
   for (int i = 0; i < map->row; i++) {

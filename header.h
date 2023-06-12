@@ -126,7 +126,7 @@ const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 // constants for 3d rendering
 const float fov = PI * 2 / 3;  // 120 degree
 const float scaling_factor = 50;
-const float render_spacing = 0.0005f;
+const float render_spacing = 0.001f;
 const char grayscale[] = ".,-~:;=!*#$@";  // 12 chars
 // ".'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";  // 69 chars
 // " (int)(-69.f * (normal[0] * x + normal[1] * y + normal[2] * z) * powf(powf(x, 2) + powf(y, 2) + powf(z, 2), -0.5))"

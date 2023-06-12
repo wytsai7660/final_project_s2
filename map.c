@@ -1,10 +1,8 @@
 #ifndef MAP_C_
 #define MAP_C_
 
-// #include "3d_renderer.c"
 #include "header.h"
 #include "types.h"
-// #include "print.c"
 
 CharArray *events_shuffle(int size) {
   CharArray *events = new_CharArray(size - 1);
