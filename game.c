@@ -5,6 +5,8 @@
 #include "map.c"
 #include "types.h"
 
+#define DEMO
+
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
   game->event = ch;
@@ -77,7 +79,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
   printf(CLEAR);
   render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
-  while (game->status == 2) {
+  drawPanel(map, player, game);
+  while (game->status == 2 || game->input_locked) {
     start = clock();
 
     updateAnimationOnly = false;
@@ -164,27 +167,30 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
     }
 
+    int y, x;
     if (game->items_enabled[0]) {
-      int y, x;
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
       do {
         y = rand_between(0, MAP_ROW);
         x = rand_between(0, MAP_COL);
       } while (map->data[y][x] == '@');
-
-      // printf("teleport to coordinate: %d, %d", y, x);
       player->pos.first = y, player->pos.second = x;
+
+      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+      drawPanel(map, player, game);
+
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
+      printf("teleport to coordinate: %d, %d", y, x);
+
       player->backpack[0]--;
       game->items_enabled[0] = false;
-    }
-    if (game->items_enabled[3]) {
+    } else if (game->items_enabled[3]) {
       player->watchTowerCnt += 10;
+      drawPanel(map, player, game);
       player->backpack[3]--;
       game->items_enabled[3] = false;
+    } else {
+      drawPanel(map, player, game);
     }
-
-    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
-    drawPanel(map, player, game);
 
     end = clock();
     one_tick(start, end);
@@ -222,15 +228,16 @@ int main() {
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
   player->pos = gen_maze(map);
-  // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
-  // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 3;
+  game->status = 0;
+#ifdef DEMO
+  game->status = 2;
   game->is_boss = false;
-  player->backpack[0] = 3;
-  player->backpack[1] = 1;
-  player->backpack[2] = 0;
-  player->backpack[3] = 4;
+  player->backpack[0] = 5;
+  player->backpack[1] = 5;
+  player->backpack[2] = 5;
+  player->backpack[3] = 5;
+#endif
 
   // game loop
   while (true) {
