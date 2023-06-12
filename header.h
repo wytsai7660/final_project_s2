@@ -163,7 +163,7 @@ int tick;  // TODO move into main() in game.c
 
 void one_tick(clock_t start, clock_t end) {
   printf("\e[%d;%dH" HIDE_CURSOR, win_row - 1, 1);
-  tick = tick >= 999 ? 0 : tick + 1;
+  tick = tick < INT_MAX ? tick + 1 : 0;
   cpu_time_used = ((float)(end - start)) / CLOCKS_PER_SEC;
   printf("Time taken: %f seconds, tick: %d\n", cpu_time_used, tick);
   delay(.03f - cpu_time_used * 2);

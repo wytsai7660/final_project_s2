@@ -21,11 +21,10 @@ void animateHit(Animation *ani, int tick, bool *input_locked, int y, int x) {
   } else if(tick == 3 || tick == 5) {
     printf(RED);
     drawAnimation(ani, 0, y, x);
-  } else {
+  } else if(tick == 4){
     printf("\e[31;1m");
     drawAnimation(ani, 0, y, x + 1);
   }
-
   printf(RESET);
 }
 

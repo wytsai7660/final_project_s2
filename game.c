@@ -196,7 +196,7 @@ int main() {
   }
 
   game->status = 3;
-  game->is_boss = true;
+  game->is_boss = false;
 
   // game loop
   while (true) {
