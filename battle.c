@@ -22,6 +22,16 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   char ch;
   int choice = 0, chosen = -1, result, current_tick;
   player->hp = player->max_hp;
+  game->input_locked = false;
+
+  printf(CLEAR);
+  drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, 1);
+  drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 1);
+  drawMiniMap(map, &player->pos, MINIMAP_SIZE, 0, win_row - TEXT_AREA_HEIGHT + 1, win_col - MAP_AREA_WIDTH + 3);
+  printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 1, 3);
+  printf("[A][D] To Select   [ENTER] To Choose   [E] To Open Backpack");
+  drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 3, 3);
+  drawStatusBar(player, false, win_row - 2, 3);
 
   while (game->status == 3 || game->input_locked) {
     start = clock();
@@ -51,11 +61,11 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     if (result == 1 && game->input_locked) {
-      animateHit(knight, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (knight->col / 2));
+      animateHit(knight, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     } else {
-      drawAnimation(knight, tick / 7 % 4, 9, (win_col / 4) - (knight->col / 2));
+      drawAnimation(knight, tick / 7 % 4, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     }
-    printf("\e[%d;%dH", 9 + knight->row, (win_col / 4) - (knight->col / 2));
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4) - (knight->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
     if (result == 2 && game->input_locked) {
@@ -83,19 +93,19 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       game->items_enabled[2] = false;
     }
 
-    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
-    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
-    drawMiniMap(map, &player->pos, MINIMAP_SIZE, 0, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
-    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
+    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, 1);
+    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 1);
+    drawMiniMap(map, &player->pos, MINIMAP_SIZE, 0, win_row - TEXT_AREA_HEIGHT + 1, win_col - MAP_AREA_WIDTH + 3);
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 1, 3);
     printf("[A][D] To Select   [ENTER] To Choose   [E] To Open Backpack");
-    drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 2, 3);
+    drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 3, 3);
 
     if (chosen != -1) {
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 4, 3);
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 5, 3);
       int enemy_move = choose_enemy_move(*enemy, game->last_player_move, game->last_enemy_move);
       result = solveDamage(player, enemy, game, chosen, enemy_move);
       printf("damage: %.2f\n", game->damage);
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 5, 3);
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
       printf("You threw %s and enemy threw %s, %s!", moves[chosen], moves[enemy_move], gameResults[result]);
 
       if (result != 0) {
@@ -104,7 +114,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       }
 
       if (enemy->hp <= 0) {
-        printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
+        printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 7, 3);
         printf("you beat the enemy!");
         enemy->hp = 0;
         if (game->is_boss) {
@@ -114,7 +124,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
         }
       }
       if (player->hp <= 0) {
-        printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 6, 3);
+        printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 7, 3);
         printf("you loose!");
         player->hp = 0;
         player->life--;
@@ -128,7 +138,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       chosen = -1;
     }
 
-    drawStatusBar(player, false, win_row - 3, 3);
+    drawStatusBar(player, false, win_row - 2, 3);
 
     end = clock();
     one_tick(start, end);
@@ -137,5 +147,6 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if (player->life <= 0) {
     game->status = 9;
   }
+  delay(3);
   Enemy_clear(enemy);
 }
