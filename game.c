@@ -130,7 +130,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
       printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
-      printf("player posx: %d, posy: %d, dir: %d", player->pos.first, player->pos.second, (player->dir + 1) % 4);
+      printf("player posx: %d, posy: %d, dir: %d", player->pos.first, player->pos.second, player->dir);
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
 
       game->round++;
