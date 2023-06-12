@@ -247,10 +247,9 @@ void chooseItem(PlayerData *p, Game *g) {
 }
 
 void drawMessage(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
-  char ch = m->data[playerPos->first][playerPos->second];
 
   printf("\e[%d;%dH", y, x);
-  switch (ch) {
+  switch (game->event) {
     case '0':
       printf("you gain hp!");
       break;

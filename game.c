@@ -7,6 +7,7 @@
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
+  game->event = ch;
   if (ch != '7') m->data[playerPos->first][playerPos->second] = '9';
 
   printf("\e[%d;%dH", y, x);
@@ -188,6 +189,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     end = clock();
     one_tick(start, end);
   }
+
+  delay(1.5f);
 }
 
 int main() {
@@ -222,8 +225,12 @@ int main() {
   // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 9;
+  game->status = 3;
   game->is_boss = false;
+  player->backpack[0] = 3;
+  player->backpack[1] = 1;
+  player->backpack[2] = 0;
+  player->backpack[3] = 4;
 
   // game loop
   while (true) {
