@@ -8,6 +8,12 @@ int main() {
   printf(CLEAR);
   Animation *circle = new_Animation("../assets/circle.txt");
   Animation *game_over = new_Animation("../assets/game_over.txt");
+  Animation *knight = new_Animation("../assets/knight.txt");
+  for(int i=0;i<20;i++){
+    drawAnimation(knight, i%4, 1, 1);
+    delay(.21f);
+  }
+  delay(1);
   if (circle == NULL) return -1;     // test on null pointer is not sufficient to indicate that the animation is loaded correctly
   if (game_over == NULL) return -1;  // test on null pointer is not sufficient to indicate that the animation is loaded correctly
   printf("circle frames: %d, row %d, col %d\n", circle->frames, circle->row, circle->col);
@@ -23,4 +29,5 @@ int main() {
   Animation *bad = new_Animation("../assets/bad.txt");
   // if (bad == NULL) return -1;
   Animation_clear(bad);
+  Animation_clear(knight);
 }

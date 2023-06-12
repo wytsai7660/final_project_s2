@@ -14,6 +14,7 @@ void clearPanel() {
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
   Animation *cat = new_Animation("assets/cat.txt");
+  Animation *knight = new_Animation("assets/knight.txt");
   if (cat == NULL) return;
 
   game->last_player_move = rand_between(0, 2);
@@ -50,11 +51,11 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     if (result == 1 && game->input_locked) {
-      animateHit(cat, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (cat->col / 2));
+      animateHit(knight, (tick - current_tick), &(game->input_locked), 9, (win_col / 4) - (knight->col / 2));
     } else {
-      drawAnimation(cat, 0, 9, (win_col / 4) - (cat->col / 2));
+      drawAnimation(knight, tick / 7 % 4, 9, (win_col / 4) - (knight->col / 2));
     }
-    printf("\e[%d;%dH", 9 + cat->row, (win_col / 4) - (cat->col / 2));
+    printf("\e[%d;%dH", 9 + knight->row, (win_col / 4) - (knight->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
     if (result == 2 && game->input_locked) {
