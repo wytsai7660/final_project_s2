@@ -13,9 +13,10 @@ void clearPanel() {
 
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
-  Animation *cat = new_Animation("assets/cat.txt");
+  Animation *skeleton = new_Animation("assets/skeleton.txt");
   Animation *knight = new_Animation("assets/knight.txt");
-  if (cat == NULL) return;
+  if (knight == NULL) return;
+  if (skeleton == NULL) return;
 
   game->last_player_move = rand_between(0, 2);
   game->last_enemy_move = rand_between(0, 2);
@@ -63,17 +64,17 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     if (result == 1 && game->input_locked) {
       animateHit(knight, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     } else {
-      drawAnimation(knight, tick / 7 % 4, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
+      drawAnimation(knight, tick / 7 % knight->frames, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     }
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4) - (knight->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
     if (result == 2 && game->input_locked) {
-      animateHit(cat, (tick - current_tick), &(game->input_locked), 5, (win_col / 4 * 3) - (cat->col / 2));
+      animateHit(skeleton, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4 * 3) - (skeleton->col / 2));
     } else {
-      drawAnimation(cat, 0, 5, (win_col / 4 * 3) - (cat->col / 2));
+      drawAnimation(skeleton, tick / 7 % skeleton->frames, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4 * 3) - (skeleton->col / 2));
     }
-    printf("\e[%d;%dH", 5 + cat->row, (win_col / 4 * 3) - (cat->col / 2));
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4 * 3) - (skeleton->col / 2));
     drawHp(enemy->hp, enemy->max_hp, false);
 
     if (updateAnimationOnly) {

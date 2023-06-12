@@ -225,7 +225,7 @@ int main() {
   // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 2;
+  game->status = 3;
   game->is_boss = false;
   player->backpack[0] = 3;
   player->backpack[1] = 1;
