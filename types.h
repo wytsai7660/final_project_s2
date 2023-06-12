@@ -338,6 +338,7 @@ typedef struct {
   bool input_locked;
   bool is_boss;
   int gained_item;
+  char event;
   int last_enemy_move;
   int last_player_move;
   IntPairList *playerPath;
@@ -353,7 +354,7 @@ Game *new_Game() {
   // 3: fight
   // 8: win
   // 9: game over?
-
+  g->event = '9';
   g->input_locked = false;
   g->is_boss = false;
   g->items_enabled = malloc(sizeof(bool) * (sizeof(items_ratio) / sizeof(float)));

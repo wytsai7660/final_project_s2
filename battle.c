@@ -147,6 +147,6 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if (player->life <= 0) {
     game->status = 9;
   }
-  delay(3);
+  delay(1.5f);
   Enemy_clear(enemy);
 }
