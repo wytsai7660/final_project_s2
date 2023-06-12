@@ -72,6 +72,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
   int current_tick;
   bool updateAnimationOnly;
   game->input_locked = false;
+  IntPair temp_pos;
 
   while (game->status == 2) {
     start = clock();
@@ -86,11 +87,11 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
           break;
         case 'A':
           printf(CLEAR HIDE_CURSOR);
-          player->dir = (player->dir - 1 + 4) % 4;
+          player->dir = (player->dir + 1) % 4;
           break;
         case 'D':
           printf(CLEAR HIDE_CURSOR);
-          player->dir = (player->dir + 1) % 4;
+          player->dir = (player->dir - 1 + 4) % 4;
           break;
         case 'E':
           chooseItem(player, game);
@@ -103,11 +104,10 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       updateAnimationOnly = true;
     }
 
-    // // update 3d_renderer
-    // if(game->input_locked) {
-    //   render(*map, make_FloatPair(player->pos.first, player->pos.second), (float)player->dir);
-    //   game->input_locked = false;
-    // }
+    // update 3d_renderer
+    if(game->input_locked ) {
+      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+    }
 
     if (updateAnimationOnly) {
       end = clock();
@@ -115,21 +115,37 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       continue;
     }
     
-    render(*map, make_FloatPair(player->pos.first, player->pos.second), (float)player->dir);
-    drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
-    drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
-    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
-    printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
+    printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
+    printf("row + %d,col + %d", direction[player->dir][1], direction[player->dir][0]);
 
-    if (!(map->data[player->pos.first + direction[player->dir][0]][player->pos.second + direction[player->dir][1]] == '@') && toupper(ch) == 'W') {
+    if (toupper(ch) == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
+      
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
-      player->pos.first += direction[player->dir][0];
-      player->pos.second += direction[player->dir][1];
+      player->pos.first += direction[player->dir][1];
+      player->pos.second += direction[player->dir][0];
+
+      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+      printf("player posx: %d posy: %d dir: %d", player->pos.first, player->pos.second, player->dir);
+      drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
+      drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
+      printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
+      printf("player posx: %d, posy: %d, dir: %d", player->pos.first, player->pos.second, (player->dir + 1) % 4);
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
+
       game->round++;
       if (game->round == 35) spawnBoss(map);
-      // game->input_locked = true;
-      // current_tick = tick + 1;
+      game->input_locked = true;
+      current_tick = tick + 1;
+
+    } else {
+      // just render;
+      render(*map, make_FloatPair(player->pos.first, player->pos.second), player->dir);
+      printf("player posx: %d posy: %d dir: %d", player->pos.first, player->pos.second, player->dir);
+      drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
+      drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
+      printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
     }
 
     if (game->items_enabled[0]) {
@@ -192,7 +208,7 @@ int main() {
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
   game->status = 2;
-  game->is_boss = false;
+  game->is_boss = true;
 
   // game loop
   while (true) {
