@@ -16,13 +16,14 @@ CharArray *events_shuffle(int size) {
   return events;
 }
 
-void gen_maze(Map *map) {  // generate the maze
+IntPair gen_maze(Map *map) {  // generate the maze
   CharArray *events = events_shuffle(map->path);
 
   // FIXME fix initial direction wrongly decided when map size is small
   IntTriple pos = make_IntTriple(rand_between(0, map->col - 2) | 1, rand_between(0, map->row - 2) | 1, rand_between(0, 3));  // gen_center (x, y, from_dir)
   IntTripleStack *pos_st = new_IntTripleStack();                                                                             // from_dir is saved as well
   IntTripleStack_push(pos_st, pos);
+  IntPair player = make_IntPair(pos.first, pos.second);
   map->data[pos.second][pos.first] = 'P';
 
   int dir;
@@ -50,7 +51,7 @@ void gen_maze(Map *map) {  // generate the maze
 
   CharArray_clear(events);
   IntTripleStack_clear(pos_st);
-  return;
+  return player;
 }
 
 #endif

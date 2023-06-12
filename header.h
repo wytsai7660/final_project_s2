@@ -67,7 +67,7 @@ int rand_between(int l, int r) { return rand() % (r - l + 1) + l; }  // get a ra
 int max(int a, int b) { return a > b ? a : b; }
 int min(int a, int b) { return a < b ? a : b; }
 
-bool float_equal(float a, float b) { return fabsf(a - b) < EPSILON; }
+bool float_equal(int i, float f) { return fabsf((float)i - f) < EPSILON; }
 
 // a swap function that can swap almost anything (in a beautiful way)
 void swap(void *a, void *b, size_t size) {
@@ -125,14 +125,16 @@ const int direction[4][2] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 
 // constants for 3d rendering
 const float fov = PI * 2 / 3;  // 120 degree
-const float scaling_factor = 30;
-const float render_spacing = 0.01f;
-// const float render_spacing = 0.0005f;
+const float scaling_factor = 50;
+const float render_spacing = 0.0005f;
+const char grayscale[] = ".,-~:;=!*#$@";  // 12 chars
+// ".'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";  // 69 chars
+// " (int)(-69.f * (normal[0] * x + normal[1] * y + normal[2] * z) * powf(powf(x, 2) + powf(y, 2) + powf(z, 2), -0.5))"
 const float wall_height_2 = .5f;
-const float rotate_spacing = 1.f / 6.f;
+
+const float rotate_spacing = 1.f / 12.f;
 const float move_spacing = .1f;
-const char grayscale[] = ".'`^\",:;Il!i><~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";  // 69 chars
-// ".,-~:;=!*#$@";  // 12 chars
+
 const float events_ratio[] = {0.075f, 0.025f, 0.075f, 0.025f, 0.075f, 0.025f, 0.1f, 0.05f, 0.15f, 0.4f};
 // 0  +HP
 // 1  -HP
