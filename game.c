@@ -1,4 +1,4 @@
-// #include "3d_renderer"
+#include "3d_renderer.c"
 #include "battle.c"
 #include "draw.c"
 #include "header.h"
@@ -103,9 +103,10 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       updateAnimationOnly = true;
     }
 
-    // update 3d_renderer
+    // // update 3d_renderer
     // if(game->input_locked) {
-    //   render(player->pos, map);
+    //   render(*map, make_FloatPair(player->pos.first, player->pos.second), (float)player->dir);
+    //   game->input_locked = false;
     // }
 
     if (updateAnimationOnly) {
@@ -113,7 +114,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       one_tick(start, end);
       continue;
     }
-
+    
+    render(*map, make_FloatPair(player->pos.first, player->pos.second), (float)player->dir);
     drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
     drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
@@ -185,17 +187,11 @@ int main() {
   Map *map = new_Map(MAP_ROW, MAP_COL);
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
+  player->pos = gen_maze(map);
+  // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
+  // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  gen_maze(map);
-  for (int i = 0; i < map->row; i++) {
-    for (int j = 0; j < map->col; j++) {
-      if (map->data[i][j] == 'P') {
-        player->pos = make_IntPair(i, j);
-      }
-    }
-  }
-
-  game->status = 3;
+  game->status = 2;
   game->is_boss = false;
 
   // game loop
@@ -213,7 +209,8 @@ int main() {
     } else if (game->status == 2) {
       mapLoop(game, player, map);
     } else if (game->status == 3) {
-      battleLoop(game, player, map);
+      game->status = 2;
+      // battleLoop(game, player, map);
     } else if (game->status == 8) {
       delay(3);
       printf(CLEAR);

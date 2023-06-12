@@ -21,7 +21,7 @@ IntPair gen_maze(Map *map) {  // generate the maze
   IntTriple pos = make_IntTriple(rand_between(0, map->col - 2) | 1, rand_between(0, map->row - 2) | 1, rand_between(0, 3));  // gen_center (x, y, from_dir)
   IntTripleStack *pos_st = new_IntTripleStack();                                                                             // from_dir is saved as well
   IntTripleStack_push(pos_st, pos);
-  IntPair player = make_IntPair(pos.first, pos.second);
+  IntPair player = make_IntPair(pos.second, pos.first);
   map->data[pos.second][pos.first] = 'P';
 
   int dir;
