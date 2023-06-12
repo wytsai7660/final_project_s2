@@ -65,7 +65,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     } else {
       drawAnimation(knight, tick / 7 % 4, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     }
-    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 2, (win_col / 4) - (knight->col / 2));
+    printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4) - (knight->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
     if (result == 2 && game->input_locked) {
@@ -147,5 +147,6 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if (player->life <= 0) {
     game->status = 9;
   }
+  delay(3);
   Enemy_clear(enemy);
 }

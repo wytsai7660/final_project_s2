@@ -222,7 +222,7 @@ int main() {
   // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 3;
+  game->status = 9;
   game->is_boss = false;
 
   // game loop
@@ -254,10 +254,14 @@ int main() {
     } else if (game->status == 9) {
       delay(3);
       printf(CLEAR);
+      Animation *goat = new_Animation("assets/goat.txt");
       Animation *game_over = new_Animation("assets/game_over.txt");  // https://fsymbols.com/generators/carty/
+      if (goat == NULL) return -1;
       if (game_over == NULL) return -1;
+      drawAnimation(goat, 0, 1, 1);
       drawAnimation(game_over, 0, win_row / 2 - game_over->row / 2, win_col / 2 - game_over->col / 6);
       Animation_clear(game_over);
+      Animation_clear(goat);
       printf("\e[%d;%dH", win_row - 1, 1);
       break;
     } else {
