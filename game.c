@@ -109,7 +109,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
     }
 
-    if (updateAnimationOnly) {
+    if (updateAnimationOnly) { 
       end = clock();
       one_tick(start, end);
       continue;
