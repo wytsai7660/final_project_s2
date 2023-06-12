@@ -8,49 +8,38 @@
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
   if (ch != '7') m->data[playerPos->first][playerPos->second] = '9';
-  int item;
 
   printf("\e[%d;%dH", y, x);
   switch (ch) {
     case '0':
-      printf("you gain hp!");
       p->max_hp++;
       break;
     case '1':
-      printf("you loose hp!");
       p->max_hp = max(p->max_hp - 1, 1);
       break;
     case '2':
-      printf("you gain atk!");
       p->atk++;
       break;
     case '3':
-      printf("you loose atk!");
       p->atk = max(p->atk - 1, 1);
       break;
     case '4':
-      printf("you gain atk!");
       p->def++;
       break;
     case '5':
-      printf("you loose atk!");
       p->def = max(p->def - 1, 0);
       break;
     case '6':
-      printf("you encounter the monster!");
       game->status = 3;
       break;
     case '7':
-      printf("you can see the all the map!");
       p->watchTowerCnt += 1;
       break;
     case '8':
-      item = sample(items_ratio, sizeof(items_ratio) / sizeof(items_ratio[0]));
-      printf("you gain %s x1!", items_name[item]);
-      p->backpack[item]++;
+      game->gained_item = sample(items_ratio, sizeof(items_ratio) / sizeof(items_ratio[0]));
+      p->backpack[game->gained_item]++;
       break;
     case 'B':
-      printf("you encounter the boss!");
       game->is_boss = true;
       game->status = 3;
     default:
@@ -67,38 +56,56 @@ void spawnBoss(Map *m) {
   m->data[y][x] = 'B';
 }
 
+void drawPanel(Map *map, PlayerData *player, Game *game) {
+  drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, 1);
+  drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 1);
+  printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 1, 3);
+  printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
+  drawMessage(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 3, 3);
+  drawMiniMap(map, &player->pos, MINIMAP_SIZE, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT + 1, win_col - MAP_AREA_WIDTH + 3);
+  drawStatusBar(player, true, win_row - 2, 3);
+}
+
 void mapLoop(Game *game, PlayerData *player, Map *map) {
   char ch;
   int current_tick;
   bool updateAnimationOnly;
   game->input_locked = false;
-  IntPair old_pos;
+  IntPair old_pos = make_IntPair(player->pos.first, player->pos.second);
   int old_dir;
 
+  printf(CLEAR);
+  render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
   while (game->status == 2) {
     start = clock();
 
     updateAnimationOnly = false;
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
+    old_dir = player->dir;
+    ch = toupper(ch);
     if (bytesRead == 1 && !game->input_locked) {
-      switch (toupper(ch)) {
+      switch (ch) {
         case 'W':
-          printf(CLEAR HIDE_CURSOR);
+          // printf(CLEAR HIDE_CURSOR);
           break;
         case 'A':
-          printf(CLEAR HIDE_CURSOR);
-          old_dir = player->dir;
+          // printf(CLEAR HIDE_CURSOR);
           player->dir = (player->dir + 1) % 4;
+          game->input_locked = true;
+          current_tick = tick;
+          updateAnimationOnly = true;
           break;
         case 'D':
-          printf(CLEAR HIDE_CURSOR);
-          old_dir = player->dir;
+          // printf(CLEAR HIDE_CURSOR);
           player->dir = (player->dir - 1 + 4) % 4;
+          game->input_locked = true;
+          current_tick = tick;
+          updateAnimationOnly = true;
           break;
         case 'E':
           chooseItem(player, game);
-          printf(CLEAR HIDE_CURSOR);
+          // printf(CLEAR HIDE_CURSOR);
           break;
         default:
           updateAnimationOnly = true;
@@ -109,36 +116,44 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
     // update 3d_renderer
     if(game->input_locked) {
-      int delta_tick = tick - current_tick;
-      if(delta_tick <= 5) {
-        render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second)*delta_tick/5), (float)(old_pos.first + (player->pos.first - old_pos.first)*delta_tick/5)), player->dir);
+      int delta_tick = (tick - current_tick);
+      if(delta_tick <= 10) {
+        printf(CLEAR);
+
+        if(ch == 'W') {
+          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second)*delta_tick/10.0), (float)(old_pos.first + (player->pos.first - old_pos.first)*delta_tick/10.0)), fmodf(old_dir*(1-delta_tick/10.f) + player->dir*delta_tick/10.f ,4.f));
+        } else {
+          if( ch == 'A') {
+            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (player->dir + 3) % 4 + delta_tick/10.0);
+          }
+          if(ch == 'D') {
+            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (player->dir + 1) % 4 - delta_tick/10.0);
+          }
+          
+        }
+
+        drawPanel(map, player, game);
+
       } else {
+        drawPanel(map, player, game);
         game->input_locked = false;
       }
     }
 
+    
     if (updateAnimationOnly) {
       end = clock();
       one_tick(start, end);
       continue;
     }
     
-    printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
-    printf("row + %d,col + %d", direction[player->dir][1], direction[player->dir][0]);
 
     if (toupper(ch) == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
       
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
-      old_pos = make_IntPair(player->pos.first, player->pos.second);
+      old_pos.first = player->pos.first, old_pos.second = player->pos.second;
       player->pos.first += direction[player->dir][1];
       player->pos.second += direction[player->dir][0];
-
-      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
-      printf("player posx: %d posy: %d dir: %d", player->pos.first, player->pos.second, player->dir);
-      drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
-      drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
-      printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
       playerEvent(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 2, 3);
 
       game->round++;
@@ -146,14 +161,6 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       game->input_locked = true;
       current_tick = tick + 1;
 
-    } else {
-      // just render;
-      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
-      printf("player posx: %d posy: %d dir: %d", player->pos.first, player->pos.second, player->dir);
-      drawBox(TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, 1);
-      drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT - 1, win_col - MAP_AREA_WIDTH + 1);
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT, 3);
-      printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
     }
 
     if (game->items_enabled[0]) {
@@ -164,7 +171,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         x = rand_between(0, MAP_COL);
       } while (map->data[y][x] == '@');
 
-      printf("teleport to coordinate: %d, %d", y, x);
+      // printf("teleport to coordinate: %d, %d", y, x);
       player->pos.first = y, player->pos.second = x;
       player->backpack[0]--;
       game->items_enabled[0] = false;
@@ -175,8 +182,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       game->items_enabled[3] = false;
     }
 
-    drawMiniMap(map, &player->pos, MINIMAP_SIZE, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 3);
-    drawStatusBar(player, true, win_row - 3, 3);
+    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+    drawPanel(map, player, game);
 
     end = clock();
     one_tick(start, end);
@@ -184,7 +191,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 }
 
 int main() {
-  srand((unsigned)time(NULL));
+  // srand((unsigned)time(NULL));
   // obtain the terminal window's size (row and column) 
 #ifdef __linux__
   struct winsize w;
@@ -215,8 +222,8 @@ int main() {
   // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 2;
-  game->is_boss = true;
+  game->status = 3;
+  game->is_boss = false;
 
   // game loop
   while (true) {
@@ -233,8 +240,8 @@ int main() {
     } else if (game->status == 2) {
       mapLoop(game, player, map);
     } else if (game->status == 3) {
-      game->status = 2;
-      // battleLoop(game, player, map);
+      // game->status = 2;
+      battleLoop(game, player, map);
     } else if (game->status == 8) {
       delay(3);
       printf(CLEAR);

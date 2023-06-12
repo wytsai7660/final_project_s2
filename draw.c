@@ -246,4 +246,43 @@ void chooseItem(PlayerData *p, Game *g) {
   }
 }
 
+void drawMessage(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
+  char ch = m->data[playerPos->first][playerPos->second];
+
+  printf("\e[%d;%dH", y, x);
+  switch (ch) {
+    case '0':
+      printf("you gain hp!");
+      break;
+    case '1':
+      printf("you loose hp!");
+      break;
+    case '2':
+      printf("you gain atk!");
+      break;
+    case '3':
+      printf("you loose atk!");
+      break;
+    case '4':
+      printf("you gain atk!");
+      break;
+    case '5':
+      printf("you loose atk!");
+      break;
+    case '6':
+      printf("you encounter the monster!");
+      break;
+    case '7':
+      printf("you can see the all the map!");
+      break;
+    case '8':
+      printf("you gain %s x1!", items_name[game->gained_item]);
+      break;
+    case 'B':
+      printf("you encounter the boss!");
+    default:
+      break;
+  }
+}
+
 #endif

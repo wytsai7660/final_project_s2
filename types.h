@@ -337,6 +337,7 @@ typedef struct {
   float damage;
   bool input_locked;
   bool is_boss;
+  int gained_item;
   int last_enemy_move;
   int last_player_move;
   IntPairList *playerPath;
