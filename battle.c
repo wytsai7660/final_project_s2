@@ -152,5 +152,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   
   clearInputBuffer();
   delay(1.5f);
+  Animation_clear(skeleton);
+  Animation_clear(knight);
   Enemy_clear(enemy);
 }
