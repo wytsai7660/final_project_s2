@@ -62,7 +62,7 @@ void drawPanel(Map *map, PlayerData *player, Game *game) {
   drawBox(TEXT_AREA_HEIGHT, MAP_AREA_WIDTH, win_row - TEXT_AREA_HEIGHT, win_col - MAP_AREA_WIDTH + 1);
   printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 1, 3);
   printf("[W] To Move   [A][D] To Turn   [E] To Open Backpack");
-  drawMessage(map, &player->pos, player, game, win_row - TEXT_AREA_HEIGHT + 3, 3);
+  drawMessage(game, win_row - TEXT_AREA_HEIGHT + 3, 3);
   drawMiniMap(map, &player->pos, MINIMAP_SIZE, player->watchTowerCnt, win_row - TEXT_AREA_HEIGHT + 1, win_col - MAP_AREA_WIDTH + 3);
   drawStatusBar(player, true, win_row - 2, 3);
 }
@@ -76,7 +76,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
   int old_dir;
 
   printf(CLEAR);
-  render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+  render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
   while (game->status == 2) {
     start = clock();
 
@@ -84,7 +84,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
     old_dir = player->dir;
-    ch = toupper(ch);
+    ch = (char)toupper(ch);
     if (bytesRead == 1 && !game->input_locked) {
       switch (ch) {
         case 'W':
@@ -116,21 +116,20 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     // update 3d_renderer
-    if(game->input_locked) {
+    if (game->input_locked) {
       int delta_tick = (tick - current_tick);
-      if(delta_tick <= 10) {
+      if (delta_tick <= 10) {
         printf(CLEAR);
 
-        if(ch == 'W') {
-          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second)*delta_tick/10.0), (float)(old_pos.first + (player->pos.first - old_pos.first)*delta_tick/10.0)), fmodf(old_dir*(1-delta_tick/10.f) + player->dir*delta_tick/10.f ,4.f));
+        if (ch == 'W') {
+          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second)) * (float)delta_tick / 10.f, (float)(old_pos.first + (player->pos.first - old_pos.first)) * (float)delta_tick / 10.f), fmodf((float)old_dir * (1.f - (float)delta_tick / 10.f) + (float)player->dir * (float)delta_tick / 10.f, 4.f));
         } else {
-          if( ch == 'A') {
-            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (player->dir + 3) % 4 + delta_tick/10.0);
+          if (ch == 'A') {
+            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)((player->dir + 3) % 4) + (float)delta_tick / 10.f);
           }
-          if(ch == 'D') {
-            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (player->dir + 1) % 4 - delta_tick/10.0);
+          if (ch == 'D') {
+            render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)((player->dir + 1) % 4) - (float)delta_tick / 10.f);
           }
-          
         }
 
         drawPanel(map, player, game);
@@ -141,16 +140,13 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       }
     }
 
-    
     if (updateAnimationOnly) {
       end = clock();
       one_tick(start, end);
       continue;
     }
-    
 
     if (toupper(ch) == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
-      
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       old_pos.first = player->pos.first, old_pos.second = player->pos.second;
       player->pos.first += direction[player->dir][1];
@@ -161,7 +157,6 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       if (game->round == 35) spawnBoss(map);
       game->input_locked = true;
       current_tick = tick + 1;
-
     }
 
     if (game->items_enabled[0]) {
@@ -183,7 +178,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       game->items_enabled[3] = false;
     }
 
-    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
     drawPanel(map, player, game);
 
     end = clock();
@@ -225,7 +220,7 @@ int main() {
   // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
   // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
 
-  game->status = 3;
+  game->status = 0;
   game->is_boss = false;
   player->backpack[0] = 3;
   player->backpack[1] = 1;
