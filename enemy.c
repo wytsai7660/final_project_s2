@@ -10,15 +10,15 @@ char *gameResults[] = {"tie", "enemy win", "you win"};
 // 2: defensive mode
 float bossTransferMatrix[2][3][3] = {{
                                          // hp below 20
-                                         {0.3, 0.1, 0.6},  // normal mode
-                                         {0.5, 0.3, 0.2},  // aggressive mode
-                                         {0.1, 0.0, 0.9},  // defensive mode
+                                         {.3f, .1f, .6f},  // normal mode
+                                         {.5f, .3f, .2f},  // aggressive mode
+                                         {.1f, 0.f, .9f},  // defensive mode
                                      },
                                      {
                                          // damage over 20
-                                         {0.9, 0.1, 0.0},
-                                         {0.3, 0.3, 0.4},
-                                         {0.1, 0.2, 0.7},
+                                         {.9f, .1f, 0.f},
+                                         {.3f, .3f, .4f},
+                                         {.1f, .2f, .7f},
                                      }};
 
 int roundRemain = 0;
@@ -65,7 +65,6 @@ void bossPolicy(Game *g, Enemy *e) {
   }
 }
 
-// real damage = (int) atk * (1 + isCrit ? 2 : 1) / (1 + def / 10)
 int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove) {
   int result = (enemyMove - playerMove + 3) % 3;
   if (g->is_boss) bossPolicy(g, e);
@@ -74,16 +73,15 @@ int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove)
   } else if (result == 1) {
     // enemy win
     g->isCrit = rand_between(1, 100) <= e->crit;
-    g->damage = e->atk * (g->isCrit ? 2 : 1) / (1 + p->def / 10.0);
+    g->damage = (float)e->atk * (g->isCrit ? 2 : 1) / (1.f + (float)p->def / 10.f);
     if (p->sheild_enabled && rand_between(0, 99) <= 90) g->damage = 0;
     p->sheild_enabled = false;
     p->hp -= (int)g->damage;
   } else if (result == 2) {
     // player win
     g->isCrit = rand_between(1, 100) <= p->crit;
-    g->damage = p->atk * (g->isCrit ? 2 : 1) / (1 + e->def / 10.0);
+    g->damage = (float)p->atk * (g->isCrit ? 2 : 1) / (1.f + (float)e->def / 10.f);
     e->hp -= (int)g->damage;
   }
   return result;
 }
-

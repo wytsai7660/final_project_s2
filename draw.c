@@ -129,7 +129,7 @@ void drawBackpack(PlayerData *p, Game *g, int choice, int y, int x) {
   printf("\e[%d;%dH  ", y + 3, x + 2);
 
   for (int i = 0; i < 4; i++) {
-    if (p->backpack[i] == 0 || g->status == 2 && !items_maze_usability[i] || g->status == 3 && items_maze_usability[i]) {
+    if (p->backpack[i] == 0 || (g->status == 2 && !items_maze_usability[i]) || (g->status == 3 && items_maze_usability[i])) {
       printf(GRY);
     } else {
       if (g->items_enabled[i]) printf(YEL);
@@ -221,11 +221,11 @@ void chooseItem(PlayerData *p, Game *g) {
 
     if (bytesRead == 1) {
       if (ch == 'a') {
-        choice = (choice - 1 + sizeof(items_ratio) / sizeof(float)) % (sizeof(items_ratio) / sizeof(float));
+        choice = (choice - 1 + ITEM_TYPES) % ITEM_TYPES;
       } else if (ch == 'd') {
-        choice = (choice + 1) % (sizeof(items_ratio) / sizeof(float));
+        choice = (choice + 1) % ITEM_TYPES;
       } else if (ch == '\n') {
-        if (p->backpack[choice] && (g->status == 2 && items_maze_usability[choice] || g->status == 3 && !items_maze_usability[choice])) {
+        if (p->backpack[choice] && ((g->status == 2 && items_maze_usability[choice]) || (g->status == 3 && !items_maze_usability[choice]))) {
           g->items_enabled[choice] = !g->items_enabled[choice];
         }
       } else if (ch == 'q') {
@@ -246,8 +246,7 @@ void chooseItem(PlayerData *p, Game *g) {
   }
 }
 
-void drawMessage(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
-
+void drawMessage(Game *game, int y, int x) {
   printf("\e[%d;%dH", y, x);
   switch (game->event) {
     case '0':

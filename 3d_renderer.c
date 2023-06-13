@@ -34,8 +34,7 @@ void render(Map map, FloatPair pos, float dir) {
 
   float l_tan = tanf(-l_angle), r_tan = tanf(-r_angle);
   float dir_sin = sinf(-angle), dir_cos = cosf(-angle);
-  FloatPair parallel_spacing = make_FloatPair(sinf(angle) * render_spacing, cosf(angle) * render_spacing),  //
-      orthogonal_spacing = make_FloatPair(parallel_spacing.second, -parallel_spacing.first);                // TODO remove one
+  FloatPair parallel_spacing = make_FloatPair(sinf(angle) * render_spacing, cosf(angle) * render_spacing), orthogonal_spacing = make_FloatPair(parallel_spacing.second, -parallel_spacing.first);
 #ifdef DEBUG
   char **sight = malloc((unsigned)map.row * sizeof(char *));
   for (int i = 0; i < map.row; i++) sight[i] = memset(malloc((unsigned)map.col * sizeof(char)), '-', (unsigned)map.col * sizeof(char));
@@ -137,7 +136,7 @@ void render(Map map, FloatPair pos, float dir) {
             for (float y = -wall_height_2; y <= wall_height_2; y += render_spacing * (1.f + z * z)) {
               if (z < 0) continue;
               float zb = 1.f / z;
-              int win_x = round_upper((float)win_col / 2 + x * scaling_factor / z + .5f), win_y = round_upper((float)win_row / 2 + (y * scaling_factor / z) / 2 + .5f);
+              int win_x = round_upper((float)win_col / 2 + x * scaling_factor / z + .5f), win_y = round_upper((float)win_row / 2 + (y * scaling_factor / z) / 2 + .5f);  // FIXME check if +.5f is correct
 
               // printf("(x = %f, z = %f) => zb = %f, win_x = %d, win_y = %d\n", x, z, zb, win_x, win_y);
 
@@ -198,6 +197,7 @@ void render(Map map, FloatPair pos, float dir) {
 //   map->data[4][8] = '@';
 //   map->data[6][8] = '@';
 //   map->data[4][7] = '@';
+//   map->data[7][6] = '@';
 
 //   map->data[5][10] = '@';
 //   map->data[5][6] = '@';
