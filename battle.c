@@ -61,6 +61,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
       updateAnimationOnly = true;
     }
 
+    // animation
     if (result == 1 && game->input_locked) {
       animateHit(knight, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
     } else {
@@ -148,6 +149,8 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if (player->life <= 0) {
     game->status = 9;
   }
+  
+  clearInputBuffer();
   delay(1.5f);
   Enemy_clear(enemy);
 }

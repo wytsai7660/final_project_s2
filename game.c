@@ -5,7 +5,7 @@
 #include "map.c"
 #include "types.h"
 
-#define DEMO
+// #define DEMO
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
@@ -228,10 +228,11 @@ int main() {
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
   player->pos = gen_maze(map);
+  char ch;
 
   game->status = 0;
 #ifdef DEMO
-  game->status = 2;
+  game->status = 3;
   game->is_boss = false;
   player->backpack[0] = 5;
   player->backpack[1] = 5;
@@ -243,13 +244,13 @@ int main() {
   while (true) {
     if (game->status == 0) {
       printf(CLEAR);
-      Animation *you_win = new_Animation("assets/you_win.txt");  // https://fsymbols.com/generators/carty/
-      if (you_win == NULL) return -1;
-      drawAnimation(you_win, 0, win_row / 2 - you_win->row / 2, win_col / 2 - you_win->col / 6);
-      Animation_clear(you_win);
+      Animation *dungeon = new_Animation("assets/dungeon.txt");  // https://fsymbols.com/generators/carty/
+      if (dungeon == NULL) return -1;
+      drawAnimation(dungeon, 0, win_row / 2 - dungeon->row / 2, win_col / 2 - dungeon->col / 6);
+      Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
-      printf("[PRESS ANY KEY TO START]");
-      getchar();
+      printf("[PRESS ENTER TO START]");
+      while((ch = getchar()) != '\n');
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
