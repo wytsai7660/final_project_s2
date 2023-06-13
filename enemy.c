@@ -15,8 +15,8 @@ float bossTransferMatrix[2][3][3] = {{
                                          {0.1, 0.0, 0.9},  // defensive mode
                                      },
                                      {
-                                         // damage over 20
-                                         {0.9, 0.1, 0.0},
+                                         // damage over 10
+                                         {0.1, 0.9, 0.0},
                                          {0.3, 0.3, 0.4},
                                          {0.1, 0.2, 0.7},
                                      }};
@@ -51,7 +51,7 @@ int choose_enemy_move(Enemy e, int last_player_move, int last_enemy_move) {
 void bossPolicy(Game *g, Enemy *e) {
   if (e->hp <= 20) {
     e->boss_state = sample(bossTransferMatrix[0][e->boss_state], 3);
-  } else if (g->damage > 20) {
+  } else if (g->damage > 10) {
     e->boss_state = sample(bossTransferMatrix[1][e->boss_state], 3);
   }
 

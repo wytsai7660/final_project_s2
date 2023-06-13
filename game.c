@@ -5,7 +5,7 @@
 #include "map.c"
 #include "types.h"
 
-// #define DEMO
+#define DEMO
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
@@ -200,7 +200,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 }
 
 int main() {
-  // srand((unsigned)time(NULL));
+  srand((unsigned)time(NULL));
   // obtain the terminal window's size (row and column) 
 #ifdef __linux__
   struct winsize w;
@@ -233,11 +233,13 @@ int main() {
   game->status = 0;
 #ifdef DEMO
   game->status = 3;
-  game->is_boss = false;
+  game->is_boss = true;
   player->backpack[0] = 5;
   player->backpack[1] = 5;
   player->backpack[2] = 5;
   player->backpack[3] = 5;
+  player->atk = 50;
+  
 #endif
 
   // game loop
