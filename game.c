@@ -5,6 +5,8 @@
 #include "map.c"
 #include "types.h"
 
+// #define DEMO
+
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
   game->event = ch;
@@ -159,28 +161,34 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       current_tick = tick + 1;
     }
 
+    int y, x;
     if (game->items_enabled[0]) {
-      int y, x;
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
       do {
         y = rand_between(0, MAP_ROW);
         x = rand_between(0, MAP_COL);
       } while (map->data[y][x] == '@');
-
-      // printf("teleport to coordinate: %d, %d", y, x);
       player->pos.first = y, player->pos.second = x;
+
+      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+      drawPanel(map, player, game);
+
+      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
+      printf("teleport to coordinate: %d, %d", y, x);
+
       player->backpack[0]--;
       game->items_enabled[0] = false;
-    }
-    if (game->items_enabled[3]) {
+    } else if (game->items_enabled[3]) {
       player->watchTowerCnt += 10;
+      drawPanel(map, player, game);
       player->backpack[3]--;
       game->items_enabled[3] = false;
+    } else {
+      drawPanel(map, player, game);
     }
 
     render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
     drawPanel(map, player, game);
-
+    
     end = clock();
     one_tick(start, end);
   }
@@ -217,27 +225,30 @@ int main() {
   PlayerData *player = new_PlayerData();
   Game *game = new_Game();
   player->pos = gen_maze(map);
-  // printf("\e[%d;%dH" HIDE_CURSOR, win_row, 1);
-  // printf("player posx: %d, posy: %d ", player->pos.first, player->pos.second);
+  char ch;
 
   game->status = 0;
+
+#ifdef DEMO
+  game->status = 3;
   game->is_boss = false;
-  player->backpack[0] = 3;
-  player->backpack[1] = 1;
-  player->backpack[2] = 0;
-  player->backpack[3] = 4;
+  player->backpack[0] = 5;
+  player->backpack[1] = 5;
+  player->backpack[2] = 5;
+  player->backpack[3] = 5;
+#endif
 
   // game loop
   while (true) {
     if (game->status == 0) {
       printf(CLEAR);
-      Animation *you_win = new_Animation("assets/you_win.txt");  // https://fsymbols.com/generators/carty/
-      if (you_win == NULL) return -1;
-      drawAnimation(you_win, 0, win_row / 2 - you_win->row / 2, win_col / 2 - you_win->col / 6);
-      Animation_clear(you_win);
+      Animation *dungeon = new_Animation("assets/dungeon.txt");  // https://fsymbols.com/generators/carty/
+      if (dungeon == NULL) return -1;
+      drawAnimation(dungeon, 0, win_row / 2 - dungeon->row / 2, win_col / 2 - dungeon->col / 6);
+      Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
-      printf("[PRESS ANY KEY TO START]");
-      getchar();
+      printf("[PRESS ENTER TO START]");
+      while((ch = getchar()) != '\n');
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
