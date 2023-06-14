@@ -80,7 +80,7 @@ void swap(void *a, void *b, size_t size) {
 }
 
 // return a number (index) based on the probability distribution array
-int sample(float ratio[], int length) {
+int sample(const float ratio[], int length) {
   float randfloat = (float)rand() / (float)RAND_MAX;  // [0, 1]
   float sum = 0;
   for (int i = 0; i < length; i++) {
