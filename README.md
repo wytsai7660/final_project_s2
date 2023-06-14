@@ -1,6 +1,6 @@
 # final_project_s2
 
-**The main branch is fixed by a genius programmer and can work as expected now. 😎**
+**The main branch was fixed by a genius programmer and can now work as expected. 😎**
 
 ## compile manually
 ```
