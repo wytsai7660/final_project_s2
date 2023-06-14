@@ -51,7 +51,7 @@ int choose_enemy_move(Enemy e, int last_player_move, int last_enemy_move) {
 void bossPolicy(Game *g, Enemy *e) {
   if (e->hp <= 20) {
     e->boss_state = sample(bossTransferMatrix[0][e->boss_state], 3);
-  } else if (g->damage > 20) {
+  } else if (g->damage > 10) {
     e->boss_state = sample(bossTransferMatrix[1][e->boss_state], 3);
   }
 
@@ -73,14 +73,14 @@ int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove)
   } else if (result == 1) {
     // enemy win
     g->isCrit = rand_between(1, 100) <= e->crit;
-    g->damage = (float)e->atk * (g->isCrit ? 2 : 1) / (1.f + (float)p->def / 10.f);
+    g->damage = (float)e->atk * (g->isCrit ? 2.f : 1.f) / (1.f + (float)p->def / 10.f);
     if (p->sheild_enabled && rand_between(0, 99) <= 90) g->damage = 0;
     p->sheild_enabled = false;
     p->hp -= (int)g->damage;
   } else if (result == 2) {
     // player win
     g->isCrit = rand_between(1, 100) <= p->crit;
-    g->damage = (float)p->atk * (g->isCrit ? 2 : 1) / (1.f + (float)e->def / 10.f);
+    g->damage = (float)p->atk * (g->isCrit ? 2.f : 1.f) / (1.f + (float)e->def / 10.f);
     e->hp -= (int)g->damage;
   }
   return result;

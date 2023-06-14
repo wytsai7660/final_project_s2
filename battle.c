@@ -141,6 +141,8 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     drawStatusBar(player, false, win_row - 2, 3);
+    // printf("\e[%d;%dH", win_row, 1);
+    // printf("enemy atk: %d, enemy def: %d", enemy->atk, enemy->def);
 
     end = clock();
     one_tick(start, end);

@@ -5,7 +5,7 @@
 #include "map.c"
 #include "types.h"
 
-// #define DEMO
+#define DEMO
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
@@ -79,7 +79,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
   printf(CLEAR);
   render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
-  while (game->status == 2) {
+  drawPanel(map, player, game);
+  while (game->status == 2 || game->input_locked) {
     start = clock();
 
     updateAnimationOnly = false;
@@ -124,7 +125,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         printf(CLEAR);
 
         if (ch == 'W') {
-          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second)) * (float)delta_tick / 10.f, (float)(old_pos.first + (player->pos.first - old_pos.first)) * (float)delta_tick / 10.f), fmodf((float)old_dir * (1.f - (float)delta_tick / 10.f) + (float)player->dir * (float)delta_tick / 10.f, 4.f));
+          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second) * delta_tick / 10.0), (float)(old_pos.first + (player->pos.first - old_pos.first) * delta_tick / 10.0)), fmodf((float)old_dir * (1.f - (float)delta_tick / 10.f) + (float)player->dir * (float)delta_tick / 10.f, 4.f));
         } else {
           if (ch == 'A') {
             render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)((player->dir + 3) % 4) + (float)delta_tick / 10.f);
@@ -169,7 +170,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       } while (map->data[y][x] == '@');
       player->pos.first = y, player->pos.second = x;
 
-      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), player->dir);
+      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
       drawPanel(map, player, game);
 
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
@@ -197,7 +198,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 }
 
 int main() {
-  // srand((unsigned)time(NULL));
+  srand((unsigned)time(NULL));
   // obtain the terminal window's size (row and column) 
 #ifdef __linux__
   struct winsize w;
@@ -230,12 +231,14 @@ int main() {
   game->status = 0;
 
 #ifdef DEMO
-  game->status = 3;
-  game->is_boss = false;
+  game->status = 0;
+  game->is_boss = true;
   player->backpack[0] = 5;
   player->backpack[1] = 5;
   player->backpack[2] = 5;
   player->backpack[3] = 5;
+  player->atk = 50;
+
 #endif
 
   // game loop
@@ -248,7 +251,8 @@ int main() {
       Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
       printf("[PRESS ENTER TO START]");
-      while((ch = getchar()) != '\n');
+      while ((ch = (char)getchar()) != '\n')
+        ;
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
