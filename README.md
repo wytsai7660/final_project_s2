@@ -1,7 +1,11 @@
 # final_project_s2
 
-**The main branch is currently broken.  
-Please try compiling the "work" branch.**
+**The main branch is fixed by a genius programmer and can work as expected now. 😎**
+
+## compile manually
+```
+gcc game.c -std=c11 -lm -O2 -o game && "/mnt/c/Users/user/Desktop/final_project_s2/"game
+```
 
 https://github.com/wytsai7660/final_project_s2
 
