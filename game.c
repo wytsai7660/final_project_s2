@@ -5,7 +5,7 @@
 #include "map.c"
 #include "types.h"
 
-#define DEMO
+// #define DEMO
 
 void playerEvent(Map *m, IntPair *playerPos, PlayerData *p, Game *game, int y, int x) {
   char ch = m->data[playerPos->first][playerPos->second];
@@ -189,7 +189,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
     render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
     drawPanel(map, player, game);
-    
+
     end = clock();
     one_tick(start, end);
   }
