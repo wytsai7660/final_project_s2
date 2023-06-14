@@ -63,17 +63,17 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
 
     // animation
     if (result == 1 && game->input_locked) {
-      animateHit(knight, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
+      animateHit(knight, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row - 4, (win_col / 4) - (knight->col / 2));
     } else {
-      drawAnimation(knight, tick / 7 % knight->frames, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4) - (knight->col / 2));
+      drawAnimation(knight, tick / 7 % knight->frames, win_row - TEXT_AREA_HEIGHT - knight->row - 4, (win_col / 4) - (knight->col / 2));
     }
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4) - (knight->col / 2));
     drawHp(player->hp, player->max_hp, player->sheild_enabled);
 
     if (result == 2 && game->input_locked) {
-      animateHit(skeleton, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4 * 3) - (skeleton->col / 2));
+      animateHit(skeleton, (tick - current_tick), &(game->input_locked), win_row - TEXT_AREA_HEIGHT - knight->row - 4, (win_col / 4 * 3) - (skeleton->col / 2));
     } else {
-      drawAnimation(skeleton, tick / 7 % skeleton->frames, win_row - TEXT_AREA_HEIGHT - knight->row  - 4, (win_col / 4 * 3) - (skeleton->col / 2));
+      drawAnimation(skeleton, tick / 7 % skeleton->frames, win_row - TEXT_AREA_HEIGHT - knight->row - 4, (win_col / 4 * 3) - (skeleton->col / 2));
     }
     printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT - 3, (win_col / 4 * 3) - (skeleton->col / 2));
     drawHp(enemy->hp, enemy->max_hp, false);

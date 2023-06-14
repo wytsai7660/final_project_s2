@@ -15,8 +15,8 @@ float bossTransferMatrix[2][3][3] = {{
                                          {.1f, 0.f, .9f},  // defensive mode
                                      },
                                      {
-                                         // damage over 10
-                                         {.1f, .9f, 0.f},
+                                         // damage over 20
+                                         {.9f, .1f, 0.f},
                                          {.3f, .3f, .4f},
                                          {.1f, .2f, .7f},
                                      }};
@@ -65,7 +65,6 @@ void bossPolicy(Game *g, Enemy *e) {
   }
 }
 
-// real damage = (int) atk * (1 + isCrit ? 2 : 1) / (1 + def / 10)
 int solveDamage(PlayerData *p, Enemy *e, Game *g, int playerMove, int enemyMove) {
   int result = (enemyMove - playerMove + 3) % 3;
   if (g->is_boss) bossPolicy(g, e);

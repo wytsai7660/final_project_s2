@@ -187,6 +187,9 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       drawPanel(map, player, game);
     }
 
+    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
+    drawPanel(map, player, game);
+    
     end = clock();
     one_tick(start, end);
   }
@@ -226,6 +229,7 @@ int main() {
   char ch;
 
   game->status = 0;
+
 #ifdef DEMO
   game->status = 0;
   game->is_boss = true;
