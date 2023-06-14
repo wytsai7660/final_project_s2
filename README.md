@@ -4,7 +4,7 @@
 
 ## compile manually
 ```
-gcc game.c -std=c11 -lm -O2 -o game && "/mnt/c/Users/user/Desktop/final_project_s2/"game
+gcc game.c -std=c11 -lm -O2 -o game && ./game
 ```
 
 https://github.com/wytsai7660/final_project_s2
