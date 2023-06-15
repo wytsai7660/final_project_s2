@@ -5,11 +5,6 @@
 #include "map.c"
 #include "types.h"
 
-void clearPanel() {
-  for (int i = win_row - TEXT_AREA_HEIGHT; i < win_row; i++) {
-    printf("\e[K\e[B");
-  }
-}
 
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
@@ -141,8 +136,6 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     drawStatusBar(player, false, win_row - 2, 3);
-    // printf("\e[%d;%dH", win_row, 1);
-    // printf("enemy atk: %d, enemy def: %d", enemy->atk, enemy->def);
 
     end = clock();
     one_tick(start, end);
