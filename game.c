@@ -80,15 +80,23 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
   printf(CLEAR);
   render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
   drawPanel(map, player, game);
+
+  ssize_t bytesRead;
   while (game->status == 2 || game->input_locked) {
     start = clock();
 
     updateAnimationOnly = false;
-    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+#ifdef __linux__
+    bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
+#elif _WIN32
+    bytesRead = kbhit();
+    if (bytesRead) ch = bytesRead;
+#endif
+
     old_dir = player->dir;
     ch = (char)toupper(ch);
-    if (bytesRead == 1 && !game->input_locked) {
+    if (bytesRead >= 1 && !game->input_locked) {
       switch (ch) {
         case 'W':
           break;
@@ -286,5 +294,7 @@ int main() {
   PlayerData_clear(player);
   Game_clear(game);
   Map_clear(map);
+#ifdef __linux__
   tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+#endif
 }

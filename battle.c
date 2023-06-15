@@ -5,7 +5,6 @@
 #include "map.c"
 #include "types.h"
 
-
 void battleLoop(Game *game, PlayerData *player, Map *map) {
   Enemy *enemy = new_Enemy(player, game->is_boss);
   Animation *skeleton = new_Animation("assets/skeleton.txt");
@@ -29,13 +28,18 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   drawChoice(moves, choice, win_row - TEXT_AREA_HEIGHT + 3, 3);
   drawStatusBar(player, false, win_row - 2, 3);
 
+  ssize_t bytesRead;
   while (game->status == 3 || game->input_locked) {
     start = clock();
 
     bool updateAnimationOnly = false;
-    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
+#ifdef __linux__
+    bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
-
+#elif _WIN32
+    bytesRead = kbhit();
+    if (bytesRead) ch = bytesRead;
+#endif
     if (bytesRead == 1 && !game->input_locked) {
       if (toupper(ch) == 'A') {
         printf(CLEAR);
@@ -144,7 +148,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
   if (player->life <= 0) {
     game->status = 9;
   }
-  
+
   clearInputBuffer();
   delay(1.5f);
   Animation_clear(skeleton);
