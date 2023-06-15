@@ -1,8 +1,6 @@
 #ifndef ANIMATION_C_
 #define ANIMATION_C_
 
-// #define DEBUG
-
 #include "draw.c"
 #include "header.h"
 #include "types.h"
@@ -27,24 +25,5 @@ void animateHit(Animation *ani, int tick, bool *input_locked, int y, int x) {
   }
   printf(RESET);
 }
-
-
-// int main() {
-//   printf(CLEAR);
-//   Animation *cat = new_Animation("assets/cat.txt"); // https://www.asciiart.eu/animals/cats
-//   if (cat == NULL) return -1;
-//   for(int i=0;i<=800000;i++) {
-//     start = clock();
-//     printf(CLEAR);
-//     // animateHit(cat, i%9, 1, 1);
-//     end = clock();
-//     one_tick(start, end);
-//     // delay(0.03);
-//   }
-//   printf(CLEAR);
-  
-  
-//   Animation_clear(cat);
-// }
 
 #endif

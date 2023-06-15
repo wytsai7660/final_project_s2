@@ -162,6 +162,7 @@ typedef struct {
   // 8  gain item
   // 9  -
   // P  player
+  // B  boss
 
   int row, col, path, walked;
 } Map;
@@ -195,6 +196,7 @@ typedef struct {
   // 0 teleport: randomly teleport to another place
   // 1 blood++: use in battle, heal you life by 5
   // 2 defense: use in battle, 90% chance ignore next monster's attack
+  // 3 Magic compass: see items on the map
 } PlayerData;
 
 PlayerData *new_PlayerData() {

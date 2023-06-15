@@ -91,17 +91,14 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     if (bytesRead == 1 && !game->input_locked) {
       switch (ch) {
         case 'W':
-          // printf(CLEAR HIDE_CURSOR);
           break;
         case 'A':
-          // printf(CLEAR HIDE_CURSOR);
           player->dir = (player->dir + 1) % 4;
           game->input_locked = true;
           current_tick = tick;
           updateAnimationOnly = true;
           break;
         case 'D':
-          // printf(CLEAR HIDE_CURSOR);
           player->dir = (player->dir - 1 + 4) % 4;
           game->input_locked = true;
           current_tick = tick;
@@ -109,7 +106,6 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
           break;
         case 'E':
           chooseItem(player, game);
-          // printf(CLEAR HIDE_CURSOR);
           break;
         default:
           updateAnimationOnly = true;
@@ -238,7 +234,6 @@ int main() {
   player->backpack[2] = 5;
   player->backpack[3] = 5;
   player->atk = 50;
-
 #endif
 
   // game loop

@@ -43,11 +43,8 @@ int choose_enemy_move(Enemy e, int last_player_move, int last_enemy_move) {
 
 // event
 // boss hp below 20
-// boss got damage over 20
-// boss hp is 1
-// win in the fight
-// equal
-// loss
+// boss got damage over 10
+
 void bossPolicy(Game *g, Enemy *e) {
   if (e->hp <= 20) {
     e->boss_state = sample(bossTransferMatrix[0][e->boss_state], 3);

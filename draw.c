@@ -4,7 +4,7 @@
 #include "header.h"
 #include "types.h"
 
-const char *charArray[] = {"Attack ", "Run ", "Items ", "Hello "};
+// const char *charArray[] = {"Attack ", "Run ", "Items ", "Hello "};
 
 void drawBox(int height, int width, int y, int x) {
   printf("\e[%d;%dH", y, x);
@@ -197,7 +197,6 @@ void drawMiniMap(Map *map, IntPair *playerPos, int smallMapSize, int watchTowerC
               printf("%c ", ' ');
               break;
           }
-          // printf("%c ", map->data[i][j]);
         } else {
           printf("%c ", ' ');
         }
