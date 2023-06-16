@@ -247,7 +247,7 @@ int main() {
   player->pos = gen_maze(map);
   char ch;
 
-  game->status = 2;
+  game->status = 0;
 
 #ifdef DEMO
   game->status = 0;

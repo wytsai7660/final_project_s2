@@ -2,6 +2,8 @@
 
 **The main branch was fixed by a genius programmer and can now work as expected. 😎**
 
+**The game is currently not workable in Windows.**
+
 ## compile manually
 ```
 gcc game.c -std=c11 -lm -Ofast -o game && ./game
