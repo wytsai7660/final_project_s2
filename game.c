@@ -96,9 +96,9 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
 
     old_dir = player->dir;
     if (bytesRead >= 1 && !game->input_locked) {
-    #ifdef _WIN32
+#ifdef _WIN32
       ch = _getch();
-    #endif
+#endif
       ch = (char)toupper(ch);
 
       switch (ch) {
@@ -173,25 +173,29 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     }
 
     int y, x;
-    if (game->items_enabled[0]) {
-      do {
-        y = rand_between(0, MAP_ROW);
-        x = rand_between(0, MAP_COL);
-      } while (map->data[y][x] == '@');
-      player->pos.first = y, player->pos.second = x;
+    if (game->items_enabled[0] || game->items_enabled[3]) {
+      if (game->items_enabled[0]) {
+        do {
+          y = rand_between(0, MAP_ROW);
+          x = rand_between(0, MAP_COL);
+        } while (map->data[y][x] == '@');
+        player->pos.first = y, player->pos.second = x;
 
-      drawPanel(map, player, game);
+        render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
+        drawPanel(map, player, game);
 
-      printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
-      printf("teleport to coordinate: %d, %d", y, x);
+        printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
+        printf("teleport to coordinate: %d, %d", y, x);
 
-      player->backpack[0]--;
-      game->items_enabled[0] = false;
-    } else if (game->items_enabled[3]) {
-      player->watchTowerCnt += 10;
-      drawPanel(map, player, game);
-      player->backpack[3]--;
-      game->items_enabled[3] = false;
+        player->backpack[0]--;
+        game->items_enabled[0] = false;
+      }
+      if (game->items_enabled[3]) {
+        player->watchTowerCnt += 10;
+        drawPanel(map, player, game);
+        player->backpack[3]--;
+        game->items_enabled[3] = false;
+      }
     } else {
       drawPanel(map, player, game);
     }
@@ -250,13 +254,16 @@ int main() {
   game->status = 0;
 
 #ifdef DEMO
-  game->status = 0;
+  game->status = 9;
   game->is_boss = true;
-  player->backpack[0] = 5;
+  player->backpack[0] = 500;
   player->backpack[1] = 5;
   player->backpack[2] = 5;
   player->backpack[3] = 5;
+  player->hp = 25;
   player->atk = 50;
+  player->def = 50;
+  // player->atk = 50;
 #endif
 
   // game loop
@@ -268,15 +275,15 @@ int main() {
       drawAnimation(dungeon, 0, win_row / 2 - dungeon->row / 2, win_col / 2 - dungeon->col / 6);
       Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
-    #ifdef __linux__
+#ifdef __linux__
       printf("[PRESS ENTER TO START]");
       while ((ch = (char)getchar()) != '\n')
         ;
-    #elif _WIN32
+#elif _WIN32
       printf("[PRESS ANYKEY TO START]");
       while (!_kbhit())
-        ;      
-    #endif
+        ;
+#endif
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
@@ -299,7 +306,7 @@ int main() {
       Animation *game_over = new_Animation("assets/game_over.txt");  // https://fsymbols.com/generators/carty/
       if (goat == NULL) return -1;
       if (game_over == NULL) return -1;
-      drawAnimation(goat, 0, 1, 1);
+      drawAnimation(goat, 0, 1, win_col / 2 - goat->col / 2);
       drawAnimation(game_over, 0, win_row / 2 - game_over->row / 2, win_col / 2 - game_over->col / 6);
       Animation_clear(game_over);
       Animation_clear(goat);
