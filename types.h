@@ -285,9 +285,10 @@ typedef struct {
 /// @note test on null pointer is not sufficient to indicate that the animation is loaded correctly (important)
 
 Animation *new_Animation(const char *filename) {  // FIXME const
-  FILE *file = fopen(filename, "rb");
+  FILE *file = fopen(filename, "r");
   if (file == NULL) {
     printf("Failed to open file: %s\n", filename);
+    fclose(file);
     return NULL;
   }
 
@@ -295,6 +296,7 @@ Animation *new_Animation(const char *filename) {  // FIXME const
   if (fscanf(file, "%d", &(ani->frames)) == EOF || fscanf(file, "%d", &(ani->row)) == EOF || fscanf(file, "%d", &(ani->col)) == EOF || fgetc(file) != '\n') {
     printf("%s: file is incomplete!\n", filename);
     free(ani);
+    fclose(file);
     return NULL;
   }
 

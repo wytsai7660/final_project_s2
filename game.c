@@ -90,13 +90,17 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
 #elif _WIN32
-    bytesRead = kbhit();
-    if (bytesRead) ch = bytesRead;
+    bytesRead = _kbhit();
+    // if (bytesRead) ch = bytesRead;
 #endif
 
     old_dir = player->dir;
-    ch = (char)toupper(ch);
     if (bytesRead >= 1 && !game->input_locked) {
+    #ifdef _WIN32
+      ch = _getch();
+    #endif
+      ch = (char)toupper(ch);
+
       switch (ch) {
         case 'W':
           break;
@@ -129,7 +133,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         printf(CLEAR);
 
         if (ch == 'W') {
-          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second) * delta_tick / 10.0), (float)(old_pos.first + (player->pos.first - old_pos.first) * delta_tick / 10.0)), fmodf((float)old_dir * (1.f - (float)delta_tick / 10.f) + (float)player->dir * (float)delta_tick / 10.f, 4.f));
+          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second) * delta_tick / 10.0), (float)(old_pos.first + (player->pos.first - old_pos.first) * delta_tick / 10.0)), player->dir);
         } else {
           if (ch == 'A') {
             render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)((player->dir + 3) % 4) + (float)delta_tick / 10.f);
@@ -142,6 +146,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         drawPanel(map, player, game);
 
       } else {
+        printf(CLEAR);
+        render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
         drawPanel(map, player, game);
         game->input_locked = false;
       }
@@ -153,7 +159,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       continue;
     }
 
-    if (toupper(ch) == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
+    if (ch == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       old_pos.first = player->pos.first, old_pos.second = player->pos.second;
       player->pos.first += direction[player->dir][1];
@@ -174,7 +180,6 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       } while (map->data[y][x] == '@');
       player->pos.first = y, player->pos.second = x;
 
-      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
       drawPanel(map, player, game);
 
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
@@ -191,8 +196,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       drawPanel(map, player, game);
     }
 
-    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
-    drawPanel(map, player, game);
+    // drawPanel(map, player, game);
 
     end = clock();
     one_tick(start, end);
@@ -223,6 +227,17 @@ int main() {
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+
+  // Get the current console mode
+  HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+  DWORD previousMode;
+  GetConsoleMode(hInput, &previousMode);
+
+  // Disable input echoing and enable non-blocking input
+  DWORD newMode = previousMode;
+  newMode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+  newMode |= ENABLE_WINDOW_INPUT;
+  SetConsoleMode(hInput, newMode);
 #endif
 
   // variable init
@@ -253,9 +268,15 @@ int main() {
       drawAnimation(dungeon, 0, win_row / 2 - dungeon->row / 2, win_col / 2 - dungeon->col / 6);
       Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
+    #ifdef __linux__
       printf("[PRESS ENTER TO START]");
       while ((ch = (char)getchar()) != '\n')
         ;
+    #elif _WIN32
+      printf("[PRESS ANYKEY TO START]");
+      while (!_kbhit())
+        ;      
+    #endif
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
@@ -296,5 +317,7 @@ int main() {
   Map_clear(map);
 #ifdef __linux__
   tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+#elif _WIN32
+  SetConsoleMode(hInput, previousMode);
 #endif
 }

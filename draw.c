@@ -213,21 +213,33 @@ void chooseItem(PlayerData *p, Game *g) {
   drawBackpack(p, g, 0, win_row - TEXT_AREA_HEIGHT + 3, (win_col - MAP_AREA_WIDTH) / 2 - 35);
   printf(HIDE_CURSOR);
 
+  ssize_t bytesRead;
+
   while (true) {
     start = clock();
-    ssize_t bytesRead = read(STDIN_FILENO, &ch, 1);
-    clearInputBuffer();
+#ifdef __linux__
+  bytesRead = read(STDIN_FILENO, &ch, 1);
+  clearInputBuffer();
+#elif _WIN32
+  bytesRead = _kbhit();
+  // if (bytesRead) ch = bytesRead;
+#endif
 
     if (bytesRead == 1) {
-      if (ch == 'a') {
+    #ifdef _WIN32
+      ch = _getch();
+    #endif
+      ch = (char)toupper(ch);
+
+      if (ch == 'A') {
         choice = (choice - 1 + ITEM_TYPES) % ITEM_TYPES;
-      } else if (ch == 'd') {
+      } else if (ch == 'D') {
         choice = (choice + 1) % ITEM_TYPES;
       } else if (ch == '\n') {
         if (p->backpack[choice] && ((g->status == 2 && items_maze_usability[choice]) || (g->status == 3 && !items_maze_usability[choice]))) {
           g->items_enabled[choice] = !g->items_enabled[choice];
         }
-      } else if (ch == 'q') {
+      } else if (ch == 'Q') {
         break;
       } else {
         end = clock();
