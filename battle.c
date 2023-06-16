@@ -37,20 +37,25 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
     bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
 #elif _WIN32
-    bytesRead = kbhit();
-    if (bytesRead) ch = bytesRead;
+    bytesRead = _kbhit();
+    // if (bytesRead) ch = bytesRead;
 #endif
-    if (bytesRead == 1 && !game->input_locked) {
-      if (toupper(ch) == 'A') {
+    if (bytesRead >= 1 && !game->input_locked) {
+
+      #ifdef _WIN32
+      ch = _getch();
+    #endif
+      ch = (char)toupper(ch);
+      if (ch == 'A') {
         printf(CLEAR);
         choice = (choice - 1 + 3) % 3;
-      } else if (toupper(ch) == 'D') {
+      } else if (ch == 'D') {
         printf(CLEAR);
         choice = (choice + 1) % 3;
       } else if (ch == '\n') {
         printf(CLEAR);
         chosen = choice;
-      } else if (toupper(ch) == 'E') {
+      } else if (ch == 'E') {
         chooseItem(player, game);
         printf(CLEAR);
       } else {

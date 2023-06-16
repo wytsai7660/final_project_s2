@@ -90,13 +90,17 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
     bytesRead = read(STDIN_FILENO, &ch, 1);
     clearInputBuffer();
 #elif _WIN32
-    bytesRead = kbhit();
-    if (bytesRead) ch = bytesRead;
+    bytesRead = _kbhit();
+    // if (bytesRead) ch = bytesRead;
 #endif
 
     old_dir = player->dir;
-    ch = (char)toupper(ch);
     if (bytesRead >= 1 && !game->input_locked) {
+    #ifdef _WIN32
+      ch = _getch();
+    #endif
+      ch = (char)toupper(ch);
+
       switch (ch) {
         case 'W':
           break;
@@ -223,6 +227,17 @@ int main() {
   CONSOLE_SCREEN_BUFFER_INFO csbi;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
   win_row = csbi.srWindow.Bottom - csbi.srWindow.Top + 1, win_col = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+
+  // Get the current console mode
+  HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+  DWORD previousMode;
+  GetConsoleMode(hInput, &previousMode);
+
+  // Disable input echoing and enable non-blocking input
+  DWORD newMode = previousMode;
+  newMode &= ~(ENABLE_ECHO_INPUT | ENABLE_LINE_INPUT);
+  newMode |= ENABLE_WINDOW_INPUT;
+  SetConsoleMode(hInput, newMode);
 #endif
 
   // variable init
@@ -253,9 +268,15 @@ int main() {
       drawAnimation(dungeon, 0, win_row / 2 - dungeon->row / 2, win_col / 2 - dungeon->col / 6);
       Animation_clear(dungeon);
       printf("\e[%d;%dH", win_row / 2 + 5, win_col / 2 - 12);
+    #ifdef __linux__
       printf("[PRESS ENTER TO START]");
       while ((ch = (char)getchar()) != '\n')
         ;
+    #elif _WIN32
+      printf("[PRESS ANYKEY TO START]");
+      while (!_kbhit())
+        ;      
+    #endif
       game->status = 2;
     } else if (game->status == 2) {
       mapLoop(game, player, map);
@@ -296,5 +317,7 @@ int main() {
   Map_clear(map);
 #ifdef __linux__
   tcsetattr(STDIN_FILENO, TCSANOW, &old_term);
+#elif _WIN32
+  SetConsoleMode(hInput, previousMode);
 #endif
 }
