@@ -146,6 +146,8 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         drawPanel(map, player, game);
 
       } else {
+        printf(CLEAR);
+        render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
         drawPanel(map, player, game);
         game->input_locked = false;
       }
@@ -157,7 +159,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       continue;
     }
 
-    if (toupper(ch) == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
+    if (ch == 'W' && !(map->data[player->pos.first + direction[player->dir][1]][player->pos.second + direction[player->dir][0]] == '@')) {
       player->watchTowerCnt -= player->watchTowerCnt ? 1 : 0;
       old_pos.first = player->pos.first, old_pos.second = player->pos.second;
       player->pos.first += direction[player->dir][1];
@@ -178,7 +180,6 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       } while (map->data[y][x] == '@');
       player->pos.first = y, player->pos.second = x;
 
-      // render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
       drawPanel(map, player, game);
 
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
@@ -195,8 +196,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       drawPanel(map, player, game);
     }
 
-    // render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
-    drawPanel(map, player, game);
+    // drawPanel(map, player, game);
 
     end = clock();
     one_tick(start, end);
