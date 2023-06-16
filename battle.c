@@ -42,7 +42,7 @@ void battleLoop(Game *game, PlayerData *player, Map *map) {
 #endif
     if (bytesRead >= 1 && !game->input_locked) {
 
-      #ifdef _WIN32
+    #ifdef _WIN32
       ch = _getch();
     #endif
       ch = (char)toupper(ch);

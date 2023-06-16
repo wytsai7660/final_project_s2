@@ -133,7 +133,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
         printf(CLEAR);
 
         if (ch == 'W') {
-          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second) * delta_tick / 10.0), (float)(old_pos.first + (player->pos.first - old_pos.first) * delta_tick / 10.0)), fmodf((float)old_dir * (1.f - (float)delta_tick / 10.f) + (float)player->dir * (float)delta_tick / 10.f, 4.f));
+          render(*map, make_FloatPair((float)(old_pos.second + (player->pos.second - old_pos.second) * delta_tick / 10.0), (float)(old_pos.first + (player->pos.first - old_pos.first) * delta_tick / 10.0)), player->dir);
         } else {
           if (ch == 'A') {
             render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)((player->dir + 3) % 4) + (float)delta_tick / 10.f);
@@ -178,7 +178,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       } while (map->data[y][x] == '@');
       player->pos.first = y, player->pos.second = x;
 
-      render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
+      // render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
       drawPanel(map, player, game);
 
       printf("\e[%d;%dH", win_row - TEXT_AREA_HEIGHT + 3, 3);
@@ -195,7 +195,7 @@ void mapLoop(Game *game, PlayerData *player, Map *map) {
       drawPanel(map, player, game);
     }
 
-    render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
+    // render(*map, make_FloatPair((float)player->pos.second, (float)player->pos.first), (float)player->dir);
     drawPanel(map, player, game);
 
     end = clock();
@@ -247,7 +247,7 @@ int main() {
   player->pos = gen_maze(map);
   char ch;
 
-  game->status = 0;
+  game->status = 2;
 
 #ifdef DEMO
   game->status = 0;

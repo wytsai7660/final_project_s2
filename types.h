@@ -285,7 +285,7 @@ typedef struct {
 /// @note test on null pointer is not sufficient to indicate that the animation is loaded correctly (important)
 
 Animation *new_Animation(const char *filename) {  // FIXME const
-  FILE *file = fopen(filename, "rb");
+  FILE *file = fopen(filename, "r");
   if (file == NULL) {
     printf("Failed to open file: %s\n", filename);
     fclose(file);
@@ -293,29 +293,12 @@ Animation *new_Animation(const char *filename) {  // FIXME const
   }
 
   Animation *ani = malloc(sizeof(Animation));
-  if (fscanf(file, "%d", &(ani->frames)) == EOF || fscanf(file, "%d", &(ani->row)) == EOF || fscanf(file, "%d", &(ani->col)) == EOF) {
+  if (fscanf(file, "%d", &(ani->frames)) == EOF || fscanf(file, "%d", &(ani->row)) == EOF || fscanf(file, "%d", &(ani->col)) == EOF || fgetc(file) != '\n') {
     printf("%s: file is incomplete!\n", filename);
     free(ani);
     fclose(file);
     return NULL;
   }
-
-#ifdef __linux__
-  if(fgetc(file) != '\n') {
-    printf("%s: file is incomplete!\n", filename);
-    free(ani);
-    fclose(file);
-    return NULL;
-  }
-#elif _WIN32
-  if(fgetc(file) != '\r') {
-    printf("%s: file is incomplete!\n", filename);
-    free(ani);
-    fclose(file);
-    return NULL;
-  }
-#endif
-
 
   // allocate memory & read from file
   ani->data = malloc((unsigned)ani->frames * sizeof(char **));
